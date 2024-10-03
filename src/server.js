@@ -37,6 +37,7 @@ app.get("/", (req, res) => {
 
 app.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
+  console.table(req.body);
   db[email] = { username, password, email, disabled: true };
   await sendVerificationEmail(
     email,
