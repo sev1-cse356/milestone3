@@ -1,8 +1,12 @@
 const express = require("express");
 const session = require("express-session");
 const { sendVerificationEmail } = require("./mailer");
+const { engine } = require("express-handlebars");
 
 const app = express();
+app.engine("handlebars", engine());
+app.set("view engine", "handlebars");
+app.set("views", "./src/views");
 const port = 3000;
 const db = {};
 
@@ -22,7 +26,13 @@ app.use("", (req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  return res.send("Hello World");
+  if (!req.session.username)
+    return res.json({
+      status: "ERROR",
+      error: true,
+      message: "your error message",
+    });
+  return res.render("home");
 });
 
 app.post("/adduser", async (req, res) => {
