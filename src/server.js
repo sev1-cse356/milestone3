@@ -28,16 +28,16 @@ app.post("/adduser", async (req, res) => {
     email,
     `${req.headers.host}/verify?email=${email}&key="somerandomstring"`
   );
-  return res.send("OK");
+  return res.json({ status: "OK" });
 });
 
 app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   if (key) {
     db[email].disabled = false;
-    return res.send(`OK`);
+    return res.json({ status: "OK" });
   }
-  return res.send({
+  return res.json({
     status: "ERROR",
     error: true,
     message: "your error message",
@@ -50,10 +50,10 @@ app.post("/login", (req, res) => {
     if (e.username === username && e.password === password && !e.disabled) {
       req.session.username = username;
       req.session.email = email;
-      return res.send("OK");
+      return res.json({ status: "OK" });
     }
   });
-  return res.send({
+  return res.json({
     status: "ERROR",
     error: true,
     message: "your error message",
@@ -63,12 +63,12 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   req.session.destroy(function (err) {
     if (err)
-      res.send({
+      return res.json({
         status: "ERROR",
         error: true,
         message: "your error message",
       });
-    else res.send("OK");
+    else return res.json({ status: "OK" });
   });
 });
 
