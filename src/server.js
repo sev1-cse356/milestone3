@@ -83,16 +83,15 @@ app.post("/login", (req, res) => {
       !entry.disabled
     ) {
       req.session.username = username;
-      console.log("MATCH");
       return res.json({ status: "OK" });
     }
   });
-  console.log("NO MATCH");
-  return res.json({
-    status: "ERROR",
-    error: true,
-    message: "your error message",
-  });
+  if (!res.headersSent)
+    return res.json({
+      status: "ERROR",
+      error: true,
+      message: "your error message",
+    });
 });
 
 app.post("/logout", (req, res) => {
