@@ -54,6 +54,7 @@ app.post("/adduser", async (req, res) => {
 
 app.get("/verify", (req, res) => {
   const { email, key } = req.query;
+  console.log("/verify");
   if (key) {
     db[email].disabled = false;
     return res.json({ status: "OK" });
@@ -67,6 +68,7 @@ app.get("/verify", (req, res) => {
 
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
+  console.log("/login");
   Object.keys(db).forEach((e) => {
     if (e.username === username && e.password === password && !e.disabled) {
       req.session.username = username;
@@ -82,6 +84,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
+  console.log("/logout");
   req.session.destroy(function (err) {
     if (err)
       return res.json({
