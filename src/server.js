@@ -58,8 +58,9 @@ app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
   console.table(req.query);
+  console.log(encodeURI(email));
   if (key) {
-    db[email].disabled = false;
+    db[encodeURI(email)].disabled = false;
     return res.json({ status: "OK" });
   }
   return res.json({
