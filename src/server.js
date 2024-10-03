@@ -47,7 +47,7 @@ app.post("/adduser", async (req, res) => {
   db[email] = { username, password, email, disabled: true };
   await sendVerificationEmail(
     email,
-    `${req.headers.host}/verify?email=${email}&key="somerandomstring"`
+    `${req.headers.host}/verify?email=${email}&key=somerandomstring`
   );
   return res.json({ status: "OK" });
 });
