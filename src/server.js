@@ -83,7 +83,6 @@ app.post("/login", (req, res) => {
       !entry.disabled
     ) {
       req.session.username = username;
-      req.session.email = email;
       return res.json({ status: "OK" });
     }
   });
