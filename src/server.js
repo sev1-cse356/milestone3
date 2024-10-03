@@ -75,15 +75,12 @@ app.post("/login", (req, res) => {
   console.log("/login");
   console.table(req.body);
   Object.keys(db).forEach((e) => {
-    console.table(db[e]);
-    console.log(db[e.username] === username);
-    console.log(db[e.password] === password);
-    console.log(!db[e.disabled]);
+    const entry = db[e];
 
     if (
-      db[e.username] === username &&
-      db[e.password] === password &&
-      !db[e.disabled]
+      entry.username === username &&
+      entry.password === password &&
+      !entry.disabled
     ) {
       req.session.username = username;
       req.session.email = email;
