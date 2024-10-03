@@ -58,9 +58,9 @@ app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
   console.table(req.query);
-  console.log(encodeURIComponent(email));
+  console.log(encodeURIComponent(email).replace(/%20/g, "+"));
   if (key) {
-    db[encodeURIComponent(email)].disabled = false;
+    db[encodeURIComponent(email).replace(/%20/g, "+")].disabled = false;
     return res.json({ status: "OK" });
   }
   return res.json({
