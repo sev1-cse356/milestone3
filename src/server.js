@@ -57,7 +57,7 @@ app.post("/adduser", async (req, res) => {
 app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
-  console.table(req.body);
+  console.table(req.query);
   if (key) {
     db[email].disabled = false;
     return res.json({ status: "OK" });
