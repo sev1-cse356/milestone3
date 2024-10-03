@@ -37,7 +37,13 @@ app.get("/", (req, res) => {
 
 app.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
-  console.table(req.body);
+  if (email in db)
+    return res.json({
+      status: "ERROR",
+      error: true,
+      message: "DUPLICATE",
+    });
+  // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
   await sendVerificationEmail(
     email,
