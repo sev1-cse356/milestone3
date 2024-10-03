@@ -37,6 +37,8 @@ app.get("/", (req, res) => {
 
 app.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
+  console.log("/adduser");
+  console.table(req.body);
   if (email in db)
     return res.json({
       status: "ERROR",
@@ -55,6 +57,7 @@ app.post("/adduser", async (req, res) => {
 app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
+  console.table(req.body);
   if (key) {
     db[email].disabled = false;
     return res.json({ status: "OK" });
@@ -69,6 +72,7 @@ app.get("/verify", (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   console.log("/login");
+  console.table(req.body);
   Object.keys(db).forEach((e) => {
     if (e.username === username && e.password === password && !e.disabled) {
       req.session.username = username;
