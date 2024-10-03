@@ -14,10 +14,10 @@ const transporter = nodemailer.createTransport({
 });
 
 // async..await is not allowed in global scope, must use a wrapper
-module.exports.sendVerificationEmail = async function sendVerificationEmail({
+module.exports.sendVerificationEmail = async function sendVerificationEmail(
   to,
-  text,
-}) {
+  text
+) {
   console.log(`Sending email to ${to}`);
   console.log(`Body: ${text}`);
   // send mail with defined transport object
