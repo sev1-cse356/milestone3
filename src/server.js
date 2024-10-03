@@ -75,6 +75,7 @@ app.post("/login", (req, res) => {
   console.log("/login");
   console.table(req.body);
   Object.keys(db).forEach((e) => {
+    console.table(e);
     if (e.username === username && e.password === password && !e.disabled) {
       req.session.username = username;
       req.session.email = email;
