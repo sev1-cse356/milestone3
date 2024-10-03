@@ -21,6 +21,10 @@ app.use("", (req, res, next) => {
   next();
 });
 
+app.get("/", (req, res) => {
+  return res.send("Hello World");
+});
+
 app.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   db[email] = { username, password, email, disabled: true };
