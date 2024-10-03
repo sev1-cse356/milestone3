@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
   host: "sev-1.cse356.compas.cs.stonybrook.edu",
-  port: 1587,
+  port: 587,
   secure: false, // true for port 465, false for other ports
   //   auth: {
   //     user: "maddison53@ethereal.email",
