@@ -18,6 +18,8 @@ module.exports.sendVerificationEmail = async function sendVerificationEmail({
   to,
   text,
 }) {
+  console.log(`Sending email to ${to}`);
+  console.log(`Body: ${text}`);
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: '"TEST" <root@sev-1.cse356.compas.cs.stonybrook.edu>', // sender address
