@@ -25,7 +25,7 @@ app.use(
   })
 );
 
-app.use("/media", express.static(path.join(__dirname, "media")));
+//app.use("/media", express.static(path.join(__dirname, "media")));
 
 app.use("", (req, res, next) => {
   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
