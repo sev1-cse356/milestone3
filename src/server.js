@@ -1,7 +1,9 @@
 const express = require("express");
+const path = require("path");
 const session = require("express-session");
 const { sendVerificationEmail } = require("./mailer");
 const { engine } = require("express-handlebars");
+
 
 const app = express();
 app.engine("handlebars", engine());
@@ -9,6 +11,9 @@ app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 const port = 3000;
 const db = {};
+
+
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(express.json());
 app.use(
@@ -19,6 +24,8 @@ app.use(
     cookie: { secure: false },
   })
 );
+
+app.use("/media", express.static(path.join(__dirname, "media")));
 
 app.use("", (req, res, next) => {
   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
@@ -74,8 +81,13 @@ app.post("/login", (req, res) => {
   const { username, password } = req.body;
   console.log("/login");
   console.table(req.body);
+
+  console.log("Current DB state:", db);
+
   Object.keys(db).forEach((e) => {
     const entry = db[e];
+
+    console.log("Checking user:", entry);
 
     if (
       entry.username === username &&
@@ -86,11 +98,12 @@ app.post("/login", (req, res) => {
       return res.json({ status: "OK" });
     }
   });
+
   if (!res.headersSent)
     return res.json({
       status: "ERROR",
       error: true,
-      message: "your error message",
+      message: "Invalid username or password",
     });
 });
 
@@ -107,6 +120,35 @@ app.post("/logout", (req, res) => {
   });
 });
 
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.user) {
+    return next();
+  } else {
+    res.status(200).header('X-CSE356', '66d0f3556424d34b6b77c48f').json({
+      status: 'ERROR',
+      error: true,
+      message: 'User not authenticated'
+    });
+  }
+}
+
+// Protect the /media route
+app.use('/media', isAuthenticated, express.static(path.join(__dirname, 'media')));
+
+
+app.get("/", isAuthenticated, (req, res) => {
+  res.render("home", { username: req.session.username });
+});
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
+});
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(200).json({
+    status: "ERROR",
+    error: true,
+    message: err.message || "An error occurred",
+  });
 });
