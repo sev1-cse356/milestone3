@@ -20,7 +20,7 @@ app.use(
   session({
     secret: "keyboard cat",
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: { secure: false },
   })
 );
@@ -121,7 +121,7 @@ app.post("/logout", (req, res) => {
 });
 
 function isAuthenticated(req, res, next) {
-  if (req.session && req.session.user) {
+  if (req.session && req.session.username) {
     return next();
   } else {
     res.status(200).header('X-CSE356', '66d0f3556424d34b6b77c48f').json({
