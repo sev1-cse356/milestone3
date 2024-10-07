@@ -6,7 +6,6 @@
  </ProgramInformation>
  <Period duration="PT0H0M46.280S">
   <AdaptationSet contentType="video" segmentAlignment="true" maxWidth="1280" maxHeight="720" maxFrameRate="25" par="16:9" lang="und" startWithSAP="1">
-<<<<<<< HEAD
     <Representation id="254000" mimeType="video/mp4" codecs="avc1.64000D" width="320" height="180" frameRate="25" sar="1:1" bandwidth="254000">
       <SegmentTemplate media="chunk_254000_$Number$.m4s" initialization="chunk_254000.mp4" timescale="12800" startNumber="1">
         <SegmentTimeline>
@@ -70,7 +69,6 @@
         <S d="80384"/>
       </SegmentTimeline>
     </SegmentTemplate>
-=======
    <SegmentTemplate media="chunk_$RepresentationID$_$Number$.m4s" initialization="chunk_$RepresentationID$.mp4" timescale="12800">
      <SegmentTimeline>
        <!-- 5 segments of 10 seconds each (128000/12800 = 10 seconds) -->
@@ -94,7 +92,6 @@
    <Representation id="3134000" mimeType="video/mp4" codecs="avc1.64001F" width="1024" height="576" frameRate="25" sar="1:1" bandwidth="3134000">
    </Representation>
    <Representation id="4952000" mimeType="video/mp4" codecs="avc1.64001F" width="1280" height="720" frameRate="25" sar="1:1" bandwidth="4952000">
->>>>>>> 4673bc5f59b1a2d3acc99a90d4d1253f79743baf
    </Representation>
   </AdaptationSet>
  </Period>
