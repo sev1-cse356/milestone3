@@ -63,7 +63,6 @@ app.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
   console.table(req.query);
-  console.log(encodeURI(email).replace(/%20/g, "+"));
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
     return res.json({ status: "OK" });
