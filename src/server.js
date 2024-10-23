@@ -31,16 +31,14 @@ app.use("", (req, res, next) => {
 });
 
 app.get("/", (req, res) => {
-  if (!req.session.username)
-    return res.json({
-      status: "ERROR",
-      error: true,
-      message: "your error message",
-    });
-  return res.render("home");
+  return res.render("home", {
+    data: {
+      username: req.session.username,
+    },
+  });
 });
 
-app.post("/adduser", async (req, res) => {
+app.post("/api/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   console.log("/adduser");
   console.table(req.body);
@@ -52,29 +50,32 @@ app.post("/adduser", async (req, res) => {
     });
   // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
-  await sendVerificationEmail(
-    email,
-    `http://${req.headers.host}/verify?email=${email}&key=somerandomstring`
-  );
+  // await sendVerificationEmail(
+  //   email,
+  //   `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+  // );
   return res.json({ status: "OK" });
 });
 
-app.get("/verify", (req, res) => {
+app.get("/api/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
   console.table(req.query);
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
-    return res.json({ status: "OK" });
+    // return res.json({ status: "OK" });
   }
-  return res.json({
-    status: "ERROR",
-    error: true,
-    message: "your error message",
-  });
+
+  // return res.json({
+  //   status: "ERROR",
+  //   error: true,
+  //   message: "your error message",
+  // });
+
+  return res.redirect("/");
 });
 
-app.post("/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
   console.log("/login");
   console.table(req.body);
@@ -104,7 +105,7 @@ app.post("/login", (req, res) => {
     });
 });
 
-app.post("/logout", (req, res) => {
+app.post("/api/logout", (req, res) => {
   console.log("/logout");
   req.session.destroy(function (err) {
     if (err)
@@ -115,6 +116,12 @@ app.post("/logout", (req, res) => {
       });
     else return res.json({ status: "OK" });
   });
+});
+
+app.post("/api/check-auth", (req, res) => {
+  if (!req.session.username)
+    return res.json({ isLoggedIn: false, userId: req.session.username });
+  return res.json({ isLoggedIn: true, userId: req.session.username });
 });
 
 function isAuthenticated(req, res, next) {

@@ -1,14 +1,45 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Media Player</title>
-  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-</head>
-<body>
-  <video id="videoPlayer" controls></video>
-  <div id="playPauseBtn">Play/Pause</div>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Media Player</title>
+    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
-  <script src="/public/js/player.js"></script>
-</body>
+    <script>
+      function addDefaultUser () { fetch("/api/adduser", {method: "POST",
+      headers: {"Content-Type": 'application/json'}, body: JSON.stringify({
+      "username": "admin", "password": "abc123", "email": "admin@356.com"
+      })}).then(()=>{
+      fetch("/api/verify?email=admin@356.com&key=somerandomstring") }) }
+      function login() { fetch("/api/login", {method: "POST",
+      headers:{"Content-Type": "application/json"}, body:
+      JSON.stringify({"username":"admin", "password":
+      "abc123"})}).then(()=>{window.location.reload()}) } function logout() {
+      fetch("/api/logout", {method: "POST", headers:{"Content-Type":
+      "application/json"}}).then(()=>{window.location.reload()}) }
+    </script>
+  </head>
+
+  <body>
+
+    {{#if @username}}
+      <div>
+        <div>You are logged in as {{@username}} </div>
+        <video id="videoPlayer" controls></video>
+        <div id="playPauseBtn">Play/Pause</div>
+        <button onclick="logout()">Logout</button>
+        <script src="/public/js/player.js"></script>
+      </div>
+
+    {{else}}
+      <div>
+
+        <button onclick="addDefaultUser()">Add Default User</button>
+        <pre>The default credentials: { "username": "admin", "password":
+          "abc123", "email": "admin@356.com" }</pre>
+
+        <button onclick="login()">Login As Default User</button>
+      </div>
+    {{/if}}
+
+  </body>
 </html>
