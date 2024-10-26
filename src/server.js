@@ -40,7 +40,7 @@ app.get("/", (req, res) => {
 
 app.post("/api/adduser", async (req, res) => {
   const { username, password, email } = req.body;
-  console.log("/adduser");
+  console.log("/api/adduser");
   console.table(req.body);
   if (email in db)
     return res.json({
@@ -50,16 +50,16 @@ app.post("/api/adduser", async (req, res) => {
     });
   // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
-  // await sendVerificationEmail(
-  //   email,
-  //   `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
-  // );
+  await sendVerificationEmail(
+    email,
+    `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+  );
   return res.json({ status: "OK" });
 });
 
 app.get("/api/verify", (req, res) => {
   const { email, key } = req.query;
-  console.log("/verify");
+  console.log("/api/verify");
   console.table(req.query);
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
@@ -77,7 +77,7 @@ app.get("/api/verify", (req, res) => {
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
-  console.log("/login");
+  console.log("/api/login");
   console.table(req.body);
 
   console.log("Current DB state:", db);
@@ -106,7 +106,7 @@ app.post("/api/login", (req, res) => {
 });
 
 app.post("/api/logout", (req, res) => {
-  console.log("/logout");
+  console.log("/api/logout");
   req.session.destroy(function (err) {
     if (err)
       return res.json({
