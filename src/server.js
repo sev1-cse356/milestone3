@@ -11,7 +11,8 @@ app.set("views", "./src/views");
 const port = 3000;
 const db = {};
 
-app.use(express.static(path.join(__dirname, "../public")));
+app.use('/media', express.static(path.join(__dirname, 'src/media')));
+
 
 app.use(express.json());
 app.use(
@@ -23,7 +24,43 @@ app.use(
   })
 );
 
-// app.use("/media", express.static(path.join(__dirname, "media")));
+app.use("/media", express.static(path.join(__dirname, "media")));
+
+const videos = [
+  { id: '320x180_254k', title: 'Video 1', description: 'Low-res video', thumbnail: '/media/320x180_254k.jpg' },
+  { id: '320x180_507k', title: 'Video 2', description: 'Another low-res video', thumbnail: '/media/320x180_507k.jpg' },
+  { id: '480x270_759k', title: 'Video 3', description: 'Mid-res video', thumbnail: '/media/480x270_759k.jpg' },
+  { id: '640x360_1013k', title: 'Video 4', description: 'High-res video', thumbnail: '/media/640x360_1013k.jpg' },
+  { id: '640x360_1254k', title: 'Video 5', description: 'Another high-res video', thumbnail: '/media/640x360_1254k.jpg' },
+];
+
+
+app.get('/api/videos/:page', (req, res) => {
+  const page = parseInt(req.params.page) || 1;
+  const pageSize = 3; // Number of videos per page
+
+  const start = (page - 1) * pageSize;
+  const paginatedVideos = videos.slice(start, start + pageSize);
+
+  if (paginatedVideos.length === 0) {
+    return res.json({
+      status: 'ERROR',
+      error: true,
+      message: 'No more videos to load',
+    });
+  }
+
+  res.json({
+    status: 'OK',
+    videos: paginatedVideos,
+  });
+});
+
+app.get('/play/:id', (req, res) => {
+  const videoId = req.params.id;
+  res.render('player', { videoId });
+});
+
 
 app.use("", (req, res, next) => {
   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
