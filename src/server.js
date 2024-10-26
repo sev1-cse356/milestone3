@@ -72,7 +72,7 @@ app.get("/api/verify", (req, res) => {
     message: "your error message",
   });
 
-  // return res.json({ status: "OK" });
+  // return res.redirect("/");
 });
 
 app.post("/api/login", (req, res) => {
