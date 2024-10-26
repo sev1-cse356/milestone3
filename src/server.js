@@ -63,16 +63,16 @@ app.get("/api/verify", (req, res) => {
   console.table(req.query);
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
-    // return res.json({ status: "OK" });
+    return res.json({ status: "OK" });
   }
 
-  // return res.json({
-  //   status: "ERROR",
-  //   error: true,
-  //   message: "your error message",
-  // });
+  return res.json({
+    status: "ERROR",
+    error: true,
+    message: "your error message",
+  });
 
-  return res.redirect("/");
+  // return res.json({ status: "OK" });
 });
 
 app.post("/api/login", (req, res) => {
