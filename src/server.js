@@ -4,6 +4,9 @@ const session = require("express-session");
 const { sendVerificationEmail } = require("./mailer");
 const { engine } = require("express-handlebars");
 
+
+const fs = require('fs');
+
 const app = express();
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -11,8 +14,7 @@ app.set("views", "./src/views");
 const port = 3000;
 const db = {};
 
-app.use('/media', express.static(path.join(__dirname, 'src/media')));
-
+app.use(express.static(path.join(__dirname, "../public")));
 
 app.use(express.json());
 app.use(
@@ -77,7 +79,7 @@ app.get("/", (req, res) => {
 
 app.post("/api/adduser", async (req, res) => {
   const { username, password, email } = req.body;
-  console.log("/api/adduser");
+  console.log("/adduser");
   console.table(req.body);
   if (email in db)
     return res.json({
@@ -87,36 +89,34 @@ app.post("/api/adduser", async (req, res) => {
     });
   // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
-
-  if (email !== "admin@356.com")
-    await sendVerificationEmail(
-      email,
-      `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
-    );
+  // await sendVerificationEmail(
+  //   email,
+  //   `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+  // );
   return res.json({ status: "OK" });
 });
 
 app.get("/api/verify", (req, res) => {
   const { email, key } = req.query;
-  console.log("/api/verify");
+  console.log("/verify");
   console.table(req.query);
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
-    return res.json({ status: "OK" });
+    // return res.json({ status: "OK" });
   }
 
-  return res.json({
-    status: "ERROR",
-    error: true,
-    message: "your error message",
-  });
+  // return res.json({
+  //   status: "ERROR",
+  //   error: true,
+  //   message: "your error message",
+  // });
 
-  // return res.redirect("/");
+  return res.redirect("/");
 });
 
 app.post("/api/login", (req, res) => {
   const { username, password } = req.body;
-  console.log("/api/login");
+  console.log("/login");
   console.table(req.body);
 
   console.log("Current DB state:", db);
@@ -145,7 +145,7 @@ app.post("/api/login", (req, res) => {
 });
 
 app.post("/api/logout", (req, res) => {
-  console.log("/api/logout");
+  console.log("/logout");
   req.session.destroy(function (err) {
     if (err)
       return res.json({
@@ -198,3 +198,41 @@ app.use((err, req, res, next) => {
     message: err.message || "An error occurred",
   });
 });
+
+
+app.post('/api/videos', (req, res) => {
+  const { count } = req.body;
+  const slicedVideos = videos.slice(0, count);
+
+  res.json({
+    status: 'OK',
+    videos: slicedVideos,
+  });
+});
+
+app.get('/api/manifest/:id', (req, res) => {
+  const videoId = req.params.id;
+  const manifestPath = path.join(__dirname, `src/media/${videoId}.mpd`);
+
+  if (fs.existsSync(manifestPath)) {
+    res.sendFile(manifestPath);
+  } else {
+    res.status(404).json({ status: 'ERROR', message: 'Manifest not found' });
+  }
+});
+
+app.get('/api/thumbnail/:id', (req, res) => {
+  const videoId = req.params.id;
+  const thumbnailPath = path.join(__dirname, 'media', `${videoId}.jpg`);
+
+  console.log('Looking for thumbnail at:', thumbnailPath); 
+
+  if (fs.existsSync(thumbnailPath)) {
+    res.sendFile(thumbnailPath);
+  } else {
+    res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });
+  }
+});
+
+
+
