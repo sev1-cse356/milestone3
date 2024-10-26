@@ -50,10 +50,12 @@ app.post("/api/adduser", async (req, res) => {
     });
   // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
-  await sendVerificationEmail(
-    email,
-    `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
-  );
+
+  if (email !== "admin@356.com")
+    await sendVerificationEmail(
+      email,
+      `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+    );
   return res.json({ status: "OK" });
 });
 
