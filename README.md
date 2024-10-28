@@ -55,3 +55,59 @@ Note: Port 25, the standard SMTP port, is blocked by default. Please execute the
 ip6tables -I OUTPUT -p tcp -m tcp --dport 25 -j DROP
 iptables -t nat -I OUTPUT -o ens3 -p tcp -m tcp --dport 25 -j DNAT --to-destination 130.245.136.123:11587
 Note that iptables commands are not automatically saved on server restart.
+
+-------------------
+
+Grading completed. Score: 10
+
+Successfully added user: grader+SbiwVI-OMt
+/api/adduser ERRORs out when creating an account with duplicate credentials
+Successfully verified users grader+SbiwVI-OMt and grader+0kjaKPtmoj
+Verifying user grader+0kjaKPtmoj with wrong key errors out
+Recieved correct Header
+Successfully logged into user grader+SbiwVI-OMt = 1pts.
+Parsed DASH manifest.
+Extracted video representation.
+all representations correct in manifest = 0.5pts.
+Successfully downloaded initialization segment OK
+Successfully downloaded a media segment. OK
+Student video fragment created.
+Successfully downloaded thumbnail file api/thumbnail/6093239-uhd_3840_2160_24fps
+Extracted frame from student video.
+Successfully extracted frame for comparison.
+Successfully extracted thumbnail for comparison.
+Comparing randomly selected frames
+Comparing randomly selected frames
+Fetching random manifest from student server...
+Parsed DASH manifest.
+Extracted video representation.
+all representations correct in manifest = 0.5pts.
+Successfully downloaded initialization segment OK
+Successfully downloaded a media segment. OK
+Student video fragment created.
+Successfully downloaded thumbnail file api/thumbnail/7170778-uhd_4096_2160_25fps
+Extracted frame from student video.
+Successfully extracted frame for comparison.
+Successfully extracted thumbnail for comparison.
+Comparing randomly selected frames
+Comparing randomly selected frames
+Correct thumbnail served. = 0.5pts.
+Fetching random manifest from student server...
+Parsed DASH manifest.
+Extracted video representation.
+all representations correct in manifest = 0.5pts.
+Successfully downloaded initialization segment OK
+Successfully downloaded a media segment. OK
+Student video fragment created.
+Successfully downloaded thumbnail file api/thumbnail/4993317-hd_1920_1080_30fps
+Extracted frame from student video.
+Successfully extracted frame for comparison.
+Successfully extracted thumbnail for comparison.
+Comparing randomly selected frames
+Comparing randomly selected frames
+Correct thumbnail served. = 0.5pts.
+10 thumbnail images found = 0.5pts
+paused video successfully = 0.5pts.
+played video successfully = 0.5pts.
+played video successfully
+scrolling seems to work! = 0.5pts
