@@ -4,8 +4,7 @@ const session = require("express-session");
 const { sendVerificationEmail } = require("./mailer");
 const { engine } = require("express-handlebars");
 
-
-const fs = require('fs');
+const fs = require("fs");
 
 const app = express();
 app.engine("handlebars", engine());
@@ -29,15 +28,39 @@ app.use(
 app.use("/media", express.static(path.join(__dirname, "media")));
 
 const videos = [
-  { id: '320x180_254k', title: 'Video 1', description: 'Low-res video', thumbnail: '/media/320x180_254k.jpg' },
-  { id: '320x180_507k', title: 'Video 2', description: 'Another low-res video', thumbnail: '/media/320x180_507k.jpg' },
-  { id: '480x270_759k', title: 'Video 3', description: 'Mid-res video', thumbnail: '/media/480x270_759k.jpg' },
-  { id: '640x360_1013k', title: 'Video 4', description: 'High-res video', thumbnail: '/media/640x360_1013k.jpg' },
-  { id: '640x360_1254k', title: 'Video 5', description: 'Another high-res video', thumbnail: '/media/640x360_1254k.jpg' },
+  {
+    id: "320x180_254k",
+    title: "Video 1",
+    description: "Low-res video",
+    thumbnail: "/media/320x180_254k.jpg",
+  },
+  {
+    id: "320x180_507k",
+    title: "Video 2",
+    description: "Another low-res video",
+    thumbnail: "/media/320x180_507k.jpg",
+  },
+  {
+    id: "480x270_759k",
+    title: "Video 3",
+    description: "Mid-res video",
+    thumbnail: "/media/480x270_759k.jpg",
+  },
+  {
+    id: "640x360_1013k",
+    title: "Video 4",
+    description: "High-res video",
+    thumbnail: "/media/640x360_1013k.jpg",
+  },
+  {
+    id: "640x360_1254k",
+    title: "Video 5",
+    description: "Another high-res video",
+    thumbnail: "/media/640x360_1254k.jpg",
+  },
 ];
 
-
-app.get('/api/videos/:page', (req, res) => {
+app.get("/api/videos/:page", (req, res) => {
   const page = parseInt(req.params.page) || 1;
   const pageSize = 3; // Number of videos per page
 
@@ -46,23 +69,22 @@ app.get('/api/videos/:page', (req, res) => {
 
   if (paginatedVideos.length === 0) {
     return res.json({
-      status: 'ERROR',
+      status: "ERROR",
       error: true,
-      message: 'No more videos to load',
+      message: "No more videos to load",
     });
   }
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videos: paginatedVideos,
   });
 });
 
-app.get('/play/:id', (req, res) => {
+app.get("/play/:id", (req, res) => {
   const videoId = req.params.id;
-  res.render('player', { videoId });
+  res.render("player", { videoId });
 });
-
 
 app.use("", (req, res, next) => {
   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
@@ -89,10 +111,11 @@ app.post("/api/adduser", async (req, res) => {
     });
   // console.table(req.body);
   db[email] = { username, password, email, disabled: true };
-  // await sendVerificationEmail(
-  //   email,
-  //   `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
-  // );
+  if (email !== "admin@356.com")
+    await sendVerificationEmail(
+      email,
+      `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+    );
   return res.json({ status: "OK" });
 });
 
@@ -199,40 +222,36 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-app.post('/api/videos', (req, res) => {
+app.post("/api/videos", (req, res) => {
   const { count } = req.body;
   const slicedVideos = videos.slice(0, count);
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videos: slicedVideos,
   });
 });
 
-app.get('/api/manifest/:id', (req, res) => {
+app.get("/api/manifest/:id", (req, res) => {
   const videoId = req.params.id;
   const manifestPath = path.join(__dirname, `src/media/${videoId}.mpd`);
 
   if (fs.existsSync(manifestPath)) {
     res.sendFile(manifestPath);
   } else {
-    res.status(404).json({ status: 'ERROR', message: 'Manifest not found' });
+    res.status(404).json({ status: "ERROR", message: "Manifest not found" });
   }
 });
 
-app.get('/api/thumbnail/:id', (req, res) => {
+app.get("/api/thumbnail/:id", (req, res) => {
   const videoId = req.params.id;
-  const thumbnailPath = path.join(__dirname, 'media', `${videoId}.jpg`);
+  const thumbnailPath = path.join(__dirname, "media", `${videoId}.jpg`);
 
-  console.log('Looking for thumbnail at:', thumbnailPath); 
+  console.log("Looking for thumbnail at:", thumbnailPath);
 
   if (fs.existsSync(thumbnailPath)) {
     res.sendFile(thumbnailPath);
   } else {
-    res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });
+    res.status(404).json({ status: "ERROR", message: "Thumbnail not found" });
   }
 });
-
-
-
