@@ -1,3 +1,11 @@
+# Documentation, how to start website
+
+- cd into the github repo directory
+- $docker-compose up --build
+- $./smtp.sh
+
+-----------
+
 Milestone #1
 Description
 
