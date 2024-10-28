@@ -60,54 +60,54 @@ Note that iptables commands are not automatically saved on server restart.
 
 Grading completed. Score: 10
 
-Successfully added user: grader+SbiwVI-OMt
-/api/adduser ERRORs out when creating an account with duplicate credentials
-Successfully verified users grader+SbiwVI-OMt and grader+0kjaKPtmoj
-Verifying user grader+0kjaKPtmoj with wrong key errors out
-Recieved correct Header
-Successfully logged into user grader+SbiwVI-OMt = 1pts.
-Parsed DASH manifest.
-Extracted video representation.
-all representations correct in manifest = 0.5pts.
-Successfully downloaded initialization segment OK
-Successfully downloaded a media segment. OK
-Student video fragment created.
-Successfully downloaded thumbnail file api/thumbnail/6093239-uhd_3840_2160_24fps
-Extracted frame from student video.
-Successfully extracted frame for comparison.
-Successfully extracted thumbnail for comparison.
-Comparing randomly selected frames
-Comparing randomly selected frames
-Fetching random manifest from student server...
-Parsed DASH manifest.
-Extracted video representation.
-all representations correct in manifest = 0.5pts.
-Successfully downloaded initialization segment OK
-Successfully downloaded a media segment. OK
-Student video fragment created.
-Successfully downloaded thumbnail file api/thumbnail/7170778-uhd_4096_2160_25fps
-Extracted frame from student video.
-Successfully extracted frame for comparison.
-Successfully extracted thumbnail for comparison.
-Comparing randomly selected frames
-Comparing randomly selected frames
-Correct thumbnail served. = 0.5pts.
-Fetching random manifest from student server...
-Parsed DASH manifest.
-Extracted video representation.
-all representations correct in manifest = 0.5pts.
-Successfully downloaded initialization segment OK
-Successfully downloaded a media segment. OK
-Student video fragment created.
-Successfully downloaded thumbnail file api/thumbnail/4993317-hd_1920_1080_30fps
-Extracted frame from student video.
-Successfully extracted frame for comparison.
-Successfully extracted thumbnail for comparison.
-Comparing randomly selected frames
-Comparing randomly selected frames
-Correct thumbnail served. = 0.5pts.
-10 thumbnail images found = 0.5pts
-paused video successfully = 0.5pts.
-played video successfully = 0.5pts.
-played video successfully
-scrolling seems to work! = 0.5pts
+Successfully added user: grader+SbiwVI-OMt <br/>
+/api/adduser ERRORs out when creating an account with duplicate credentials <br/>
+Successfully verified users grader+SbiwVI-OMt and grader+0kjaKPtmoj <br/>
+Verifying user grader+0kjaKPtmoj with wrong key errors out <br/>
+Recieved correct Header <br/>
+Successfully logged into user grader+SbiwVI-OMt = 1pts. <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/6093239-uhd_3840_2160_24fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/>
+Fetching random manifest from student server... <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/7170778-uhd_4096_2160_25fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/> 
+Correct thumbnail served. = 0.5pts. <br/>
+Fetching random manifest from student server... <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/4993317-hd_1920_1080_30fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/>
+Correct thumbnail served. = 0.5pts. <br/>
+10 thumbnail images found = 0.5pts <br/>
+paused video successfully = 0.5pts. <br/>
+played video successfully = 0.5pts. <br/>
+played video successfully <br/>
+scrolling seems to work! = 0.5pts <br/>
