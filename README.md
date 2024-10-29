@@ -6,8 +6,7 @@
 
 -----------
 
-Milestone #2
-Description
+# Milestone #2 Description
 
 1. Include all milestone 1 functionality and include the ones below
 
