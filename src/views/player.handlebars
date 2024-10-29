@@ -93,5 +93,24 @@
       // Load the initial video
       loadVideo(currentVideoId);
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+        var url = 'http://sev-1.cse356.compas.cs.stonybrook.edu/play/5381274-uhd_4096_2160_30fps'; // Adjust to your server's address
+        var player = dashjs.MediaPlayer().create();
+        var video = document.getElementById('videoPlayer');
+        var playPauseBtn = document.getElementById('playPauseBtn');
+
+        player.initialize(video, url, false);
+
+        // Play/Pause functionality
+        playPauseBtn.addEventListener('click', function() {
+            if (video.paused) {
+            video.play();
+            } else {
+            video.pause();
+            }
+        });
+        });
+    </script>
   </body>
 </html>
