@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ../src/media/
+
 # Loop through all .mp4 files in the current directory
 for video in *.mp4; do
   # Extract filename without extension
