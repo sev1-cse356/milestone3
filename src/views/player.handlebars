@@ -6,37 +6,92 @@
     <title>Video Player</title>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <style>
-        #video-container{
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        video{
-            width: 100%;
-            max-width: 720px;
-        }
+      #video-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      video {
+        width: 100%;
+        max-width: 720px;
+      }
     </style>
   </head>
   <body>
     <div id="video-container">
-        <h1>Playing Video: {{videoId}}</h1>
+      <h1>Playing Video: {{videoId}}</h1>
 
-        <video
+      <video
         id="videoPlayer"
         controls
         autoplay
         style="width: 100%; max-width: 720px;"
-        >
-            <source src="/media/{{videoId}}.mp4" type="video/mp4">
-        </video>
+      ></video>
 
-        <div id="playPauseBtn">Play</div>
+      <div id="playPauseBtn">Play</div>
     </div>
 
     <script>
+      const player = dashjs.MediaPlayer().create();
+      const videoElement = document.getElementById('videoPlayer');
+      const playPauseBtn = document.getElementById('playPauseBtn');
+      let currentVideoId = '{{videoId}}';
 
+      // Initialize the player
+      player.initialize(videoElement, '', false);
+
+      // Load the video manifest for the given video ID
+      function loadVideo(videoId) {
+        const manifestUrl = `/api/manifest/${videoId}`;
+        console.log(`Loading video: ${videoId}, URL: ${manifestUrl}`);
+
+        // Make sure the player is initialized and ready
+        player.attachSource(manifestUrl);
+        history.pushState(null, '', `/play/${videoId}`);
+        currentVideoId = videoId;
+      }
+
+      // Fetch the next video ID
+      function fetchNextVideo() {
+        return fetch(`/api/videos/next/${currentVideoId}`)
+          .then((response) => response.json())
+          .then((data) => data.videoId);
+      }
+
+      // Fetch the previous video ID
+      function fetchPreviousVideo() {
+        return fetch(`/api/videos/prev/${currentVideoId}`)
+          .then((response) => response.json())
+          .then((data) => data.videoId);
+      }
+
+      // Scroll event listener for switching videos
+      window.addEventListener('wheel', async (event) => {
+        event.preventDefault();
+        console.log('Scroll event detected');
+
+        if (event.deltaY < 0) {
+          // Scroll up: Load previous video
+          const prevVideoId = await fetchPreviousVideo();
+          loadVideo(prevVideoId);
+        } else {
+          // Scroll down: Load next video
+          const nextVideoId = await fetchNextVideo();
+          loadVideo(nextVideoId);
+        }
+      });
+
+      // Play/Pause functionality
+      playPauseBtn.addEventListener('click', () => {
+        if (videoElement.paused) {
+          videoElement.play();
+        } else {
+          videoElement.pause();
+        }
+      });
+
+      // Load the initial video
+      loadVideo(currentVideoId);
     </script>
-
-    <script src="/public/js/player.js"></script>
   </body>
 </html>

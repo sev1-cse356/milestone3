@@ -270,3 +270,31 @@ app.get('/api/thumbnail/:id', (req, res) => {
     res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });        
   }
 });
+
+///
+
+app.get('/api/videos/next/:id', (req, res) => {
+  const currentVideoId = req.params.id;
+  const currentIndex = videos.findIndex(video => video.id === currentVideoId);
+
+  const nextIndex = (currentIndex + 1) % videos.length;
+  const nextVideoId = videos[nextIndex].id;
+
+  res.json({
+    status: 'OK',
+    videoId: nextVideoId,
+  });
+});
+
+app.get('/api/videos/prev/:id', (req, res) => {
+  const currentVideoId = req.params.id;
+  const currentIndex = videos.findIndex(video => video.id === currentVideoId);
+
+  const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
+  const prevVideoId = videos[prevIndex].id;
+
+  res.json({
+    status: 'OK',
+    videoId: prevVideoId,
+  });
+});
