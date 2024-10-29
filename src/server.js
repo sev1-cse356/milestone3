@@ -3,16 +3,15 @@ const path = require("path");
 const session = require("express-session");
 const { sendVerificationEmail } = require("./mailer");
 const { engine } = require("express-handlebars");
+const AuthRouter = require("./routes/auth");
 
-
-const fs = require('fs');
+const fs = require("fs");
 
 const app = express();
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 const port = 3000;
-const db = {};
 
 app.use(express.static(path.join(__dirname, "../public")));
 
@@ -26,35 +25,37 @@ app.use(
   })
 );
 
-app.use("", (req, res, next) => {
+app.use("*", (req, res, next) => {
   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
   next();
 });
+
+app.use("/api", AuthRouter);
 
 app.use("/media", express.static(path.join(__dirname, "media")));
 
 let videos = [];
 
-fs.readFile(path.join(__dirname, 'media', 'm1.json'), 'utf8', (err, data) => {
-    if (err) {
-        console.error('Error reading m.json:', err);
-        return;
-    }
-    try {
-        const jsonData = JSON.parse(data);
+fs.readFile(path.join(__dirname, "media", "m1.json"), "utf8", (err, data) => {
+  if (err) {
+    console.error("Error reading m.json:", err);
+    return;
+  }
+  try {
+    const jsonData = JSON.parse(data);
 
-        // Transform the JSON data into the desired format
-        videos = Object.entries(jsonData).map(([id, description]) => ({
-                id: id.replace('.mp4', ''),
-            title: id.replace('.mp4', ''),
-            description,
-            thumbnail: `/media/${id.replace('.mp4', '.jpg')}`
-        }));
+    // Transform the JSON data into the desired format
+    videos = Object.entries(jsonData).map(([id, description]) => ({
+      id: id.replace(".mp4", ""),
+      title: id.replace(".mp4", ""),
+      description,
+      thumbnail: `/media/${id.replace(".mp4", ".jpg")}`,
+    }));
 
-        console.log('Videos loaded:', videos);
-    } catch (parseError) {
-        console.error('Error parsing m.json:', parseError);
-    }
+    console.log("Videos loaded:", videos);
+  } catch (parseError) {
+    console.error("Error parsing m.json:", parseError);
+  }
 });
 
 // const videos = [
@@ -65,7 +66,7 @@ fs.readFile(path.join(__dirname, 'media', 'm1.json'), 'utf8', (err, data) => {
 //  { id: '640x360_1254k', title: 'Video 5', description: 'Another high-res video', thumbnail: '/media/640x360_1254k.jpg' },
 // ];
 
-app.get('/api/videos/:page', (req, res) => {
+app.get("/api/videos/:page", (req, res) => {
   const page = parseInt(req.params.page) || 1;
   const pageSize = 10; // Number of videos per page
 
@@ -74,21 +75,21 @@ app.get('/api/videos/:page', (req, res) => {
 
   if (paginatedVideos.length === 0) {
     return res.json({
-      status: 'ERROR',
+      status: "ERROR",
       error: true,
-      message: 'No more videos to load',
+      message: "No more videos to load",
     });
   }
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videos: paginatedVideos,
   });
 });
 
-app.get('/play/:id', (req, res) => {
+app.get("/play/:id", (req, res) => {
   const videoId = req.params.id;
-  res.render('player', { videoId });
+  res.render("player", { videoId });
 });
 
 app.get("/", (req, res) => {
@@ -97,94 +98,6 @@ app.get("/", (req, res) => {
       username: req.session.username,
     },
   });
-});
-
-app.post("/api/adduser", async (req, res) => {
-  const { username, password, email } = req.body;
-  console.log("/adduser");
-  console.table(req.body);
-  if (email in db)
-    return res.json({
-      status: "ERROR",
-      error: true,
-      message: "DUPLICATE",
-    });
-   console.table(req.body);
-  db[email] = { username, password, email, disabled: true };
-  if (email !== 'admin@356.com'){
-   await sendVerificationEmail(
-     email,
-     `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`      
-   );
-  }
-  return res.json({ status: "OK" });
-});
-
-app.get("/api/verify", (req, res) => {
-  const { email, key } = req.query;
-  console.log("/verify");
-  console.table(req.query);
-  if (key) {
-    db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
-     return res.json({ status: "OK" });
-  }
-
-   return res.json({
-     status: "ERROR",
-    error: true,
-     message: "your error message",
-   });
-
-  return res.redirect("/");
-});
-
-app.post("/api/login", (req, res) => {
-  const { username, password } = req.body;
-  console.log("/login");
-  console.table(req.body);
-
-  console.log("Current DB state:", db);
-
-  Object.keys(db).forEach((e) => {
-    const entry = db[e];
-
-    console.log("Checking user:", entry);
-
-    if (
-      entry.username === username &&
-      entry.password === password &&
-      !entry.disabled
-    ) {
-      req.session.username = username;
-      return res.json({ status: "OK" });
-    }
-  });
-
-  if (!res.headersSent)
-    return res.json({
-      status: "ERROR",
-      error: true,
-      message: "Invalid username or password",
-    });
-});
-
-app.post("/api/logout", (req, res) => {
-  console.log("/logout");
-  req.session.destroy(function (err) {
-    if (err)
-      return res.json({
-        status: "ERROR",
-        error: true,
-        message: "your error message",
-      });
-    else return res.json({ status: "OK" });
-  });
-});
-
-app.post("/api/check-auth", (req, res) => {
-  if (!req.session.username)
-    return res.json({ isLoggedIn: false, userId: req.session.username });
-  return res.json({ isLoggedIn: true, userId: req.session.username });
 });
 
 function isAuthenticated(req, res, next) {
@@ -223,106 +136,75 @@ app.use((err, req, res, next) => {
   });
 });
 
-
-app.post('/api/videos', (req, res) => {
+app.post("/api/videos", (req, res) => {
   const { count } = req.body;
   const slicedVideos = videos.slice(0, count);
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videos: slicedVideos,
   });
 });
 
-
-app.get('/api/manifest/:id', isAuthenticated, (req, res) => {
+app.get("/api/manifest/:id", isAuthenticated, (req, res) => {
   const videoId = req.params.id;
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
-<<<<<<< HEAD
-        const manifestPath = path.join(__dirname, 'media', `${videoId}_output.mpd`);  
-=======
-	const manifestPath = path.join(__dirname, 'media', `${videoId}_output.mpd`);
->>>>>>> f6a5374 (leaning)
+  const manifestPath = path.join(__dirname, "media", `${videoId}_output.mpd`);
   console.log(`Looking for manifest at: ${manifestPath}`);
 
   // Set required headers
   // res.setHeader('X-CSE356', '66d0f3556424d34b6b77c48f');
-<<<<<<< HEAD
-
-=======
-  
->>>>>>> f6a5374 (leaning)
 
   if (fs.existsSync(manifestPath)) {
     res.sendFile(manifestPath);
   } else {
     res.status(200).json({
-      status: 'ERROR',
+      status: "ERROR",
       error: true,
-      message: 'Manifest not found',
+      message: "Manifest not found",
     });
   }
 });
 
-
-
-app.get('/api/thumbnail/:id', (req, res) => {
+app.get("/api/thumbnail/:id", (req, res) => {
   const videoId = req.params.id;
-  const thumbnailPath = path.join(__dirname, 'media', `${videoId}.jpg`);
-<<<<<<< HEAD
+  const thumbnailPath = path.join(__dirname, "media", `${videoId}.jpg`);
 
-=======
-	
->>>>>>> f6a5374 (leaning)
-  console.log('Looking for thumbnail at:', thumbnailPath);
+  console.log("Looking for thumbnail at:", thumbnailPath);
 
   if (fs.existsSync(thumbnailPath)) {
     res.sendFile(thumbnailPath);
   } else {
-<<<<<<< HEAD
-    res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });        
-=======
-    res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });
->>>>>>> f6a5374 (leaning)
+    res.status(404).json({ status: "ERROR", message: "Thumbnail not found" });
   }
 });
 
 ///
 
-app.get('/api/videos/next/:id', (req, res) => {
+app.get("/api/videos/next/:id", (req, res) => {
   const currentVideoId = req.params.id;
-  const currentIndex = videos.findIndex(video => video.id === currentVideoId);
+  const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
 
-<<<<<<< HEAD
-=======
   // Calculate the next index
->>>>>>> f6a5374 (leaning)
   const nextIndex = (currentIndex + 1) % videos.length;
   const nextVideoId = videos[nextIndex].id;
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videoId: nextVideoId,
   });
 });
 
-app.get('/api/videos/prev/:id', (req, res) => {
+app.get("/api/videos/prev/:id", (req, res) => {
   const currentVideoId = req.params.id;
-  const currentIndex = videos.findIndex(video => video.id === currentVideoId);
+  const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
 
-<<<<<<< HEAD
-=======
   // Calculate the previous index
->>>>>>> f6a5374 (leaning)
   const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
   const prevVideoId = videos[prevIndex].id;
 
   res.json({
-    status: 'OK',
+    status: "OK",
     videoId: prevVideoId,
   });
 });
-<<<<<<< HEAD
-=======
-
->>>>>>> f6a5374 (leaning)

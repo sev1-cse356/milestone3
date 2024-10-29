@@ -1,63 +1,64 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Media Player</title>
-    <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
-    <style>
-      #video-list {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 20px;
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Media Player</title>
+  <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+  <style>
+    #video-list {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .video-item {
+      width: 80%;
+      margin: 10px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+    }
+
+    .thumbnail {
+      width: 120px;
+      height: 80px;
+      margin-right: 20px;
+    }
+
+    .video-details {
+      flex: 1;
+    }
+  </style>
+
+  <script>
+    let page = 1; // Start with the first page
+
+    // Ensure the DOM is fully loaded before accessing elements
+    document.addEventListener('DOMContentLoaded', () => {
+      const videoList = document.getElementById('video-list');
+
+      if (videoList) {
+        fetchVideos(videoList); // Fetch the first page of videos
+      } else {
+        console.error('Video list element not found!');
       }
+    });
 
-      .video-item {
-        width: 80%;
-        margin: 10px 0;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-      }
+    // Fetch videos from the server and append them to the list
+    async function fetchVideos(videoList) {
+      try {
+        const response = await fetch(`/api/videos/${page}`);
+        const data = await response.json();
 
-      .thumbnail {
-        width: 120px;
-        height: 80px;
-        margin-right: 20px;
-      }
-
-      .video-details {
-        flex: 1;
-      }
-    </style>
-
-    <script>
-      let page = 1; // Start with the first page
-
-      // Ensure the DOM is fully loaded before accessing elements
-      document.addEventListener('DOMContentLoaded', () => {
-        const videoList = document.getElementById('video-list');
-
-        if (videoList) {
-          fetchVideos(videoList); // Fetch the first page of videos
-        } else {
-          console.error('Video list element not found!');
-        }
-      });
-
-      // Fetch videos from the server and append them to the list
-      async function fetchVideos(videoList) {
-        try {
-          const response = await fetch(`/api/videos/${page}`);
-          const data = await response.json();
-
-          if (data.status === 'OK') {
-            data.videos.forEach((video) => {
-              const videoItem = document.createElement('div');
-              videoItem.classList.add('video-item');
-              videoItem.innerHTML = `
+        if (data.status === 'OK') {
+          data.videos.forEach((video) => {
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+            videoItem.innerHTML = `
                 <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}"> 
                 <div class="video-details">
                   <h2>${video.title}</h2>
@@ -65,83 +66,79 @@
                   <a href="/play/${video.id}">Watch Video</a>
                 </div>
               `;
-              videoList.appendChild(videoItem);
-            });
-          } else {
-            console.log(data.message); // No more videos to load
-          }
-        } catch (error) {
-          console.error('Error fetching videos:', error);
+            videoList.appendChild(videoItem);
+          });
+        } else {
+          console.log(data.message); // No more videos to load
+        }
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+      }
+    }
+
+    // Infinite scrolling logic to load more videos when the user scrolls to the bottom
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        page++;
+        const videoList = document.getElementById('video-list');
+        if (videoList) {
+          fetchVideos(videoList); // Fetch the next page of videos
         }
       }
+    });
 
-      // Infinite scrolling logic to load more videos when the user scrolls to the bottom
-      window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {      
-          page++;
-          const videoList = document.getElementById('video-list');
-          if (videoList) {
-            fetchVideos(videoList); // Fetch the next page of videos
-          }
-        }
+    // Add a default user for testing purposes
+    function addDefaultUser() {
+      fetch("/api/adduser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: "admin",
+          password: "abc123",
+          email: "admin@356.com",
+        }),
+      }).then(() => {
+        fetch("/api/verify?email=admin@356.com&key=somerandomstring");
       });
+    }
 
-      // Add a default user for testing purposes
-      function addDefaultUser() {
-        fetch("/api/adduser", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: "admin",
-            password: "abc123",
-            email: "admin@356.com",
-          }),
-        }).then(() => {
-          fetch("/api/verify?email=admin@356.com&key=somerandomstring");
-        });
-      }
+    // Login function
+    function login() {
+      fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: "admin", password: "abc123" }),
+      }).then(() => {
+        window.location.reload();
+      });
+    }
 
-      // Login function
-      function login() {
-        fetch("/api/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: "admin", password: "abc123" }),
-        }).then(() => {
-          window.location.reload();
-        });
-      }
+    // Logout function
+    function logout() {
+      fetch("/api/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }).then(() => {
+        window.location.reload();
+      });
+    }
+  </script>
+</head>
 
-      // Logout function
-      function logout() {
-        fetch("/api/logout", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }).then(() => {
-          window.location.reload();
-        });
-      }
-    </script>
-  </head>
+<body>
+  {{#if @username}}
+  <div>
+    <div>You are logged in as {{@username}}.</div>
+    <button onclick="logout()">Logout</button>
+    <div id="video-list"></div> <!-- Video list container -->
+  </div>
+  {{else}}
+  <div>
+    <button onclick="addDefaultUser()">Add Default User</button>
+    <pre>The default credentials: { "username": "admin", "password": "abc123", "email": "admin@356.com" }</pre>
+    <button onclick="login()">Login As Default User</button>
+  </div>
+  {{/if}}
+</body>
 
-  <body>
-    {{#if @username}}
-      <div>
-        <div>You are logged in as {{@username}}.</div>
-        <div id="video-list"></div> <!-- Video list container -->
-
-        <video id="videoPlayer" controls></video>
-        <div id="playPauseBtn">Play/Pause</div>
-
-        <button onclick="logout()">Logout</button>
-        <script src="/public/js/player.js"></script>
-      </div>
-    {{else}}
-      <div>
-        <button onclick="addDefaultUser()">Add Default User</button>
-        <pre>The default credentials: { "username": "admin", "password": "abc123", "email": "admin@356.com" }</pre>
-        <button onclick="login()">Login As Default User</button>
-      </div>
-    {{/if}}
-  </body>
 </html>
