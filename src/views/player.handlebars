@@ -2,12 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />        
     <title>Video Player</title>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
+    <style>
+        #video-container{
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        video{
+            width: 100%;
+            max-width: 720px;
+        }
+    </style>
   </head>
   <body>
-    <div>
+    <div id="video-container">
         <h1>Playing Video: {{videoId}}</h1>
 
         <video
@@ -15,11 +26,17 @@
         controls
         autoplay
         style="width: 100%; max-width: 720px;"
-        ></video>
+        >
+            <source src="/media/{{videoId}}.mp4" type="video/mp4">
+        </video>
 
         <div id="playPauseBtn">Play</div>
-
-        <script src="/public/js/player.js"></script>
     </div>
+
+    <script>
+
+    </script>
+
+    <script src="/public/js/player.js"></script>
   </body>
 </html>
