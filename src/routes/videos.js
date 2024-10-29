@@ -5,7 +5,7 @@ const VideoRouter = Router();
 
 let videos = [];
 
-fs.readFile(path.join(__dirname, "../media", "m1.json"), "utf8", (err, data) => {
+fs.readFile(path.join(__dirname, "../media", "m2.json"), "utf8", (err, data) => {
   if (err) {
     console.error("Error reading m.json:", err);
     return;
