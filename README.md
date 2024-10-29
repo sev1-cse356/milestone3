@@ -1,3 +1,11 @@
+# Documentation, how to start website
+
+- cd into the github repo directory
+- $docker-compose up --build
+- $./smtp.sh
+
+-----------
+
 Milestone #1
 Description
 
@@ -47,3 +55,59 @@ Note: Port 25, the standard SMTP port, is blocked by default. Please execute the
 ip6tables -I OUTPUT -p tcp -m tcp --dport 25 -j DROP
 iptables -t nat -I OUTPUT -o ens3 -p tcp -m tcp --dport 25 -j DNAT --to-destination 130.245.136.123:11587
 Note that iptables commands are not automatically saved on server restart.
+
+-------------------
+
+Grading completed. Score: 10
+
+Successfully added user: grader+SbiwVI-OMt <br/>
+/api/adduser ERRORs out when creating an account with duplicate credentials <br/>
+Successfully verified users grader+SbiwVI-OMt and grader+0kjaKPtmoj <br/>
+Verifying user grader+0kjaKPtmoj with wrong key errors out <br/>
+Recieved correct Header <br/>
+Successfully logged into user grader+SbiwVI-OMt = 1pts. <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/6093239-uhd_3840_2160_24fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/>
+Fetching random manifest from student server... <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/7170778-uhd_4096_2160_25fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/> 
+Correct thumbnail served. = 0.5pts. <br/>
+Fetching random manifest from student server... <br/>
+Parsed DASH manifest. <br/>
+Extracted video representation. <br/>
+all representations correct in manifest = 0.5pts. <br/>
+Successfully downloaded initialization segment OK <br/>
+Successfully downloaded a media segment. OK <br/>
+Student video fragment created. <br/>
+Successfully downloaded thumbnail file api/thumbnail/4993317-hd_1920_1080_30fps <br/>
+Extracted frame from student video. <br/>
+Successfully extracted frame for comparison. <br/>
+Successfully extracted thumbnail for comparison. <br/>
+Comparing randomly selected frames <br/>
+Comparing randomly selected frames <br/>
+Correct thumbnail served. = 0.5pts. <br/>
+10 thumbnail images found = 0.5pts <br/>
+paused video successfully = 0.5pts. <br/>
+played video successfully = 0.5pts. <br/>
+played video successfully <br/>
+scrolling seems to work! = 0.5pts <br/>
