@@ -6,7 +6,7 @@
 
 -----------
 
-Milestone #1
+## Milestone #1
 Description
 
 1. Develop a user-creation system validated with email. Handle duplicate credentials.
@@ -58,7 +58,7 @@ Note that iptables commands are not automatically saved on server restart.
 
 -------------------
 
-Grading completed. Score: 10
+## Grading completed. Score: 10
 
 Successfully added user: grader+0N-Opast5E <br/>
 /api/adduser ERRORs out when creating an account with duplicate credentials <br/>
