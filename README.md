@@ -29,7 +29,7 @@ Description
 7. GET /play/:id
    Return a frontend video player that can play video with id :id
 
-Similar to wp2, we have
+Similar to warmup project 2, we have
 
 The user should be able to pause div(id="playPauseBtn") and play div(id="playPauseBtn") the video, seek within the video, and dynamically change resolutions.
 
@@ -112,3 +112,9 @@ played video successfully = 0.5pts. <br/>
 played video successfully <br/>
 paused video successfully = 0.5pts. <br/>
 scrolling seems to work! = 0.5pts <br/>
+
+-------------
+
+# Notes
+
+- the m1.html is the http://130.245.136.73/mnt2/video/m1.html file that we made scripts to pull the videos from.
