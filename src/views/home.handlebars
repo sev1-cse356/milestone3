@@ -58,7 +58,7 @@
               const videoItem = document.createElement('div');
               videoItem.classList.add('video-item');
               videoItem.innerHTML = `
-                <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}">
+                <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}"> 
                 <div class="video-details">
                   <h2>${video.title}</h2>
                   <p>${video.description}</p>
@@ -77,7 +77,7 @@
 
       // Infinite scrolling logic to load more videos when the user scrolls to the bottom
       window.addEventListener('scroll', () => {
-        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {      
           page++;
           const videoList = document.getElementById('video-list');
           if (videoList) {
@@ -127,7 +127,7 @@
   <body>
     {{#if @username}}
       <div>
-        <div>You are logged in as {{@username}}</div>
+        <div>You are logged in as {{@username}}.</div>
         <div id="video-list"></div> <!-- Video list container -->
 
         <video id="videoPlayer" controls></video>
