@@ -112,3 +112,9 @@ played video successfully = 0.5pts. <br/>
 played video successfully <br/>
 paused video successfully = 0.5pts. <br/>
 scrolling seems to work! = 0.5pts <br/>
+
+-------------
+
+# Notes
+
+- the m1.html is the http://130.245.136.73/mnt2/video/m1.html file that we made scripts to pull the videos from.
