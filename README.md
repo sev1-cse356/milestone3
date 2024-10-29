@@ -7,7 +7,7 @@
 -----------
 
 ## Milestone #1
-Description
+## Description
 
 1. Develop a user-creation system validated with email. Handle duplicate credentials.
    /api/adduser { username, password, email } -- Creates a disabled user that cannot log in.
