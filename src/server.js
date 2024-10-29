@@ -35,7 +35,7 @@ app.use("/media", express.static(path.join(__dirname, "media")));
 
 let videos = [];
 
-fs.readFile(path.join(__dirname, 'media', 'm1.json'), 'utf8', (err, data) => {        
+fs.readFile(path.join(__dirname, 'media', 'm1.json'), 'utf8', (err, data) => {
     if (err) {
         console.error('Error reading m.json:', err);
         return;
@@ -238,12 +238,20 @@ app.post('/api/videos', (req, res) => {
 app.get('/api/manifest/:id', isAuthenticated, (req, res) => {
   const videoId = req.params.id;
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
+<<<<<<< HEAD
         const manifestPath = path.join(__dirname, 'media', `${videoId}_output.mpd`);  
+=======
+	const manifestPath = path.join(__dirname, 'media', `${videoId}_output.mpd`);
+>>>>>>> f6a5374 (leaning)
   console.log(`Looking for manifest at: ${manifestPath}`);
 
   // Set required headers
   // res.setHeader('X-CSE356', '66d0f3556424d34b6b77c48f');
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> f6a5374 (leaning)
 
   if (fs.existsSync(manifestPath)) {
     res.sendFile(manifestPath);
@@ -261,13 +269,21 @@ app.get('/api/manifest/:id', isAuthenticated, (req, res) => {
 app.get('/api/thumbnail/:id', (req, res) => {
   const videoId = req.params.id;
   const thumbnailPath = path.join(__dirname, 'media', `${videoId}.jpg`);
+<<<<<<< HEAD
 
+=======
+	
+>>>>>>> f6a5374 (leaning)
   console.log('Looking for thumbnail at:', thumbnailPath);
 
   if (fs.existsSync(thumbnailPath)) {
     res.sendFile(thumbnailPath);
   } else {
+<<<<<<< HEAD
     res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });        
+=======
+    res.status(404).json({ status: 'ERROR', message: 'Thumbnail not found' });
+>>>>>>> f6a5374 (leaning)
   }
 });
 
@@ -277,6 +293,10 @@ app.get('/api/videos/next/:id', (req, res) => {
   const currentVideoId = req.params.id;
   const currentIndex = videos.findIndex(video => video.id === currentVideoId);
 
+<<<<<<< HEAD
+=======
+  // Calculate the next index
+>>>>>>> f6a5374 (leaning)
   const nextIndex = (currentIndex + 1) % videos.length;
   const nextVideoId = videos[nextIndex].id;
 
@@ -290,6 +310,10 @@ app.get('/api/videos/prev/:id', (req, res) => {
   const currentVideoId = req.params.id;
   const currentIndex = videos.findIndex(video => video.id === currentVideoId);
 
+<<<<<<< HEAD
+=======
+  // Calculate the previous index
+>>>>>>> f6a5374 (leaning)
   const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
   const prevVideoId = videos[prevIndex].id;
 
@@ -298,3 +322,7 @@ app.get('/api/videos/prev/:id', (req, res) => {
     videoId: prevVideoId,
   });
 });
+<<<<<<< HEAD
+=======
+
+>>>>>>> f6a5374 (leaning)
