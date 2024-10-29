@@ -6,6 +6,7 @@ const { engine } = require("express-handlebars");
 const AuthRouter = require("./routes/auth");
 
 const fs = require("fs");
+const VideoRouter = require("./routes/videos");
 
 const app = express();
 app.engine("handlebars", engine());
@@ -31,32 +32,11 @@ app.use("*", (req, res, next) => {
 });
 
 app.use("/api", AuthRouter);
+app.use("/api/videos", VideoRouter)
 
 app.use("/media", express.static(path.join(__dirname, "media")));
 
-let videos = [];
 
-fs.readFile(path.join(__dirname, "media", "m1.json"), "utf8", (err, data) => {
-  if (err) {
-    console.error("Error reading m.json:", err);
-    return;
-  }
-  try {
-    const jsonData = JSON.parse(data);
-
-    // Transform the JSON data into the desired format
-    videos = Object.entries(jsonData).map(([id, description]) => ({
-      id: id.replace(".mp4", ""),
-      title: id.replace(".mp4", ""),
-      description,
-      thumbnail: `/media/${id.replace(".mp4", ".jpg")}`,
-    }));
-
-    console.log("Videos loaded:", videos);
-  } catch (parseError) {
-    console.error("Error parsing m.json:", parseError);
-  }
-});
 
 // const videos = [
 //  { id: '320x180_254k', title: 'Video 1', description: 'Low-res video', thumbnail: '/media/320x180_254k.jpg' },
@@ -66,26 +46,7 @@ fs.readFile(path.join(__dirname, "media", "m1.json"), "utf8", (err, data) => {
 //  { id: '640x360_1254k', title: 'Video 5', description: 'Another high-res video', thumbnail: '/media/640x360_1254k.jpg' },
 // ];
 
-app.get("/api/videos/:page", (req, res) => {
-  const page = parseInt(req.params.page) || 1;
-  const pageSize = 10; // Number of videos per page
 
-  const start = (page - 1) * pageSize;
-  const paginatedVideos = videos.slice(start, start + pageSize);
-
-  if (paginatedVideos.length === 0) {
-    return res.json({
-      status: "ERROR",
-      error: true,
-      message: "No more videos to load",
-    });
-  }
-
-  res.json({
-    status: "OK",
-    videos: paginatedVideos,
-  });
-});
 
 app.get("/play/:id", (req, res) => {
   const videoId = req.params.id;
@@ -136,15 +97,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-app.post("/api/videos", (req, res) => {
-  const { count } = req.body;
-  const slicedVideos = videos.slice(0, count);
 
-  res.json({
-    status: "OK",
-    videos: slicedVideos,
-  });
-});
 
 app.get("/api/manifest/:id", isAuthenticated, (req, res) => {
   const videoId = req.params.id;
@@ -181,30 +134,3 @@ app.get("/api/thumbnail/:id", (req, res) => {
 
 ///
 
-app.get("/api/videos/next/:id", (req, res) => {
-  const currentVideoId = req.params.id;
-  const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
-
-  // Calculate the next index
-  const nextIndex = (currentIndex + 1) % videos.length;
-  const nextVideoId = videos[nextIndex].id;
-
-  res.json({
-    status: "OK",
-    videoId: nextVideoId,
-  });
-});
-
-app.get("/api/videos/prev/:id", (req, res) => {
-  const currentVideoId = req.params.id;
-  const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
-
-  // Calculate the previous index
-  const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
-  const prevVideoId = videos[prevIndex].id;
-
-  res.json({
-    status: "OK",
-    videoId: prevVideoId,
-  });
-});
