@@ -130,4 +130,5 @@ dist
 .pnp.*
 
 
-# src/media
+src/media/*.mpd
+src/media/*.m4s
