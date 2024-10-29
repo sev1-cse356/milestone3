@@ -1,5 +1,6 @@
 #!/bin/bash
-
+home=$PWD
+cd src/media/
 # Loop over all mp4 files in the "videos" folder
 for video in *.mp4; do
     # Get the filename without the path and extension
@@ -23,3 +24,4 @@ for video in *.mp4; do
 
     echo "Processed $video to ${filename}_output.mpd"
 done
+cd $home

@@ -1,5 +1,6 @@
 #!/bin/bash
-
+home=$PWD
+cd src/media/
 # Path to the media directory
 MEDIA_DIR="./src/media"
 
@@ -34,3 +35,4 @@ for video in $MEDIA_DIR/*.mp4; do
 done
 
 echo "MPD generation completed!"
+cd $home

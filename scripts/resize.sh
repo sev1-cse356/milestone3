@@ -1,4 +1,6 @@
 #!/bin/bash
+home=$PWD
+cd src/media/
 
 # Loop over all .mp4 files in the current directory
 for video in *.mp4; do
@@ -12,3 +14,4 @@ for video in *.mp4; do
   "${filename}_padded.mp4"
 done
 
+cd $home

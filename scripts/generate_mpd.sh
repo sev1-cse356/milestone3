@@ -1,7 +1,8 @@
 #!/bin/bash
 
+home=$PWD
+cd src/media/
 # Navigate to the media directory
-cd src/media
 
 # Loop through all .mp4 files and generate MPD files
 for video in *.mp4; do
@@ -15,3 +16,4 @@ for video in *.mp4; do
 done
 
 echo "MPD generation completed!"
+cd $home
