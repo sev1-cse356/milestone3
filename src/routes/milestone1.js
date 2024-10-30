@@ -1,9 +1,10 @@
 const { Router } = require("express");
+const { isAuthenticated } = require("../middlewares");
 
-const AuthRouter = Router();
+const MileStone1Router = Router();
 const db = {};
 
-AuthRouter.post("/adduser", async (req, res) => {
+MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   if (email in db)
     return res.json({
@@ -21,7 +22,7 @@ AuthRouter.post("/adduser", async (req, res) => {
   return res.json({ status: "OK" });
 });
 
-AuthRouter.get("/verify", (req, res) => {
+MileStone1Router.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/verify");
   console.table(req.query);
@@ -37,7 +38,7 @@ AuthRouter.get("/verify", (req, res) => {
   });
 });
 
-AuthRouter.post("/login", (req, res) => {
+MileStone1Router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
   Object.keys(db).forEach((e) => {
@@ -60,7 +61,7 @@ AuthRouter.post("/login", (req, res) => {
     });
 });
 
-AuthRouter.post("/logout", (req, res) => {
+MileStone1Router.post("/logout", (req, res) => {
   req.session.destroy(function (err) {
     if (err)
       return res.json({
@@ -72,10 +73,43 @@ AuthRouter.post("/logout", (req, res) => {
   });
 });
 
-AuthRouter.post("/check-auth", (req, res) => {
+MileStone1Router.post("/check-auth", (req, res) => {
   if (!req.session.username)
     return res.json({ isLoggedIn: false, userId: req.session.username });
   return res.json({ isLoggedIn: true, userId: req.session.username });
 });
 
-module.exports = AuthRouter;
+MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
+  const videoId = req.params.id;
+  // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
+  const manifestPath = path.join(__dirname, "media", `${videoId}_output.mpd`);
+  console.log(`Looking for manifest at: ${manifestPath}`);
+
+  // Set required headers
+  // res.setHeader('X-CSE356', '66d0f3556424d34b6b77c48f');
+
+  if (fs.existsSync(manifestPath)) {
+    res.sendFile(manifestPath);
+  } else {
+    res.status(200).json({
+      status: "ERROR",
+      error: true,
+      message: "Manifest not found",
+    });
+  }
+});
+
+MileStone1Router.get("/thumbnail/:id", (req, res) => {
+  const videoId = req.params.id;
+  const thumbnailPath = path.join(__dirname, "media", `${videoId}.jpg`);
+
+  console.log("Looking for thumbnail at:", thumbnailPath);
+
+  if (fs.existsSync(thumbnailPath)) {
+    res.sendFile(thumbnailPath);
+  } else {
+    res.status(404).json({ status: "ERROR", message: "Thumbnail not found" });
+  }
+});
+
+module.exports = MileStone1Router;
