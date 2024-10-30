@@ -11,7 +11,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
       error: true,
       message: "DUPLICATE",
     });
-  db[email] = { username, password, email, disabled: true };
+  db[email] = { username, password, email, disabled: true, viewed: new Set() };
   if (email !== "admin@356.com") {
     await sendVerificationEmail(
       email,
@@ -23,8 +23,6 @@ MileStone1Router.post("/adduser", async (req, res) => {
 
 MileStone1Router.get("/verify", (req, res) => {
   const { email, key } = req.query;
-  console.log("/verify");
-  console.table(req.query);
   if (key) {
     db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
     return res.json({ status: "OK" });
@@ -48,6 +46,7 @@ MileStone1Router.post("/login", (req, res) => {
       !entry.disabled
     ) {
       req.session.username = username;
+      req.session.email = e;
       return res.json({ status: "OK" });
     }
   });
@@ -83,9 +82,6 @@ MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
   const manifestPath = path.join(__dirname, "media", `${videoId}_output.mpd`);
   console.log(`Looking for manifest at: ${manifestPath}`);
-
-  // Set required headers
-  // res.setHeader('X-CSE356', '66d0f3556424d34b6b77c48f');
 
   if (fs.existsSync(manifestPath)) {
     res.sendFile(manifestPath);
