@@ -1,8 +1,7 @@
 const { Router } = require("express");
-const { isAuthenticated } = require("../middlewares");
+const { isAuthenticated, db } = require("../middlewares");
 
 const MileStone1Router = Router();
-const db = {};
 
 MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;

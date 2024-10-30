@@ -9,3 +9,5 @@ exports.isAuthenticated = function isAuthenticated(req, res, next) {
     });
   }
 };
+
+exports.db = {};
