@@ -1,6 +1,7 @@
 const { Router } = require("express");
-const { db, isAuthenticated } = require("../middlewares");
-
+const multer = require("multer");
+const { db, isAuthenticated, getAndIncrementId } = require("../middlewares");
+const upload = multer({ dest: "../media/" });
 const Milestone2Router = Router();
 
 //TODO: 2. ADD AUTHENTICATION LATER
@@ -51,9 +52,25 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   return res.json({ likes: db[id].likes });
 });
 
-//TODO: 4.
-Milestone2Router.post("/upload", (req, res) => {
-  return res.send("TO BE IMPLEMENTED");
+//TODO: 4. ONLY ACCEPTS FORMDATA
+// TEST WITH
+// curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4file=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
+Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
+  const { author, title } = req.body;
+
+  const newVidId = getAndIncrementId();
+
+  db[newVidId] = {
+    author,
+    title,
+    path: req.file.path,
+    likes: 0,
+    ups: new Set(),
+    downs: new Set(),
+    nones: new Set(),
+  };
+  // console.log(req.file);
+  return res.json({ id: newVidId });
 });
 
 //TODO: 5.

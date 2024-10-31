@@ -12,4 +12,10 @@ exports.isAuthenticated = function isAuthenticated(req, res, next) {
 
 exports.db = {};
 
+let videoId = 500;
+
+exports.getAndIncrementId = () => {
+  return videoId++;
+};
+
 // DB LOOKS LIKE
