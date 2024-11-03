@@ -17,6 +17,6 @@ services:
     volumes:
       - ./nginx:/etc/nginx/user_conf.d
     
-  uploader:
-    build:
-      context: ./uploader
+  # uploader:
+  #   build:
+  #     context: ./uploader

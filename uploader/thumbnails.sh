@@ -1,7 +1,6 @@
 #!/bin/bash
 
 
-#TODO:
 video="$1"
 filename=$(basename -- "$video")
 filename="${filename%.*}"

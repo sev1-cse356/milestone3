@@ -9,8 +9,8 @@ import (
 	redis "github.com/redis/go-redis/v9"
 )
 
-func resize() *exec.Cmd {
-	cmd := exec.Command("./scripts/resize.sh", "-a")
+func resize(path string) *exec.Cmd {
+	cmd := exec.Command("./resize.sh", path)
 
 	// Start the process in the background
 	err := cmd.Start()
@@ -21,8 +21,8 @@ func resize() *exec.Cmd {
 	return cmd
 }
 
-func generate() *exec.Cmd {
-	cmd := exec.Command("./scripts/generate.sh", "-a")
+func generate(path string) *exec.Cmd {
+	cmd := exec.Command("./generate.sh", path)
 
 	// Start the process in the background
 	err := cmd.Start()
@@ -33,8 +33,8 @@ func generate() *exec.Cmd {
 	return cmd
 }
 
-func thumbnail() *exec.Cmd {
-	cmd := exec.Command("./scripts/thumbnail.sh", "-a")
+func thumbnail(path string) *exec.Cmd {
+	cmd := exec.Command("./thumbnails.sh", path)
 
 	// Start the process in the background
 	err := cmd.Start()
@@ -50,7 +50,7 @@ var ctx = context.Background()
 func main() {
 	// resize -> generate -> thumbnail
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
+		Addr:     "localhost:6379",
 		Password: "66d0f3556424d34b6b77c48f", // no password set
 		DB:       0,                          // use default DB
 	})
@@ -65,6 +65,17 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Println(msg.Channel, msg.Payload)
+		path := msg.Payload
+
+		resize(path)
+		generate(path)
+		thumbnail(path)
+
+		// After all 3 operations are complete, send the path through the notify channel
+		err = rdb.Publish(ctx, "notify", path).Err()
+		if err != nil {
+			panic(err)
+		}
+		fmt.Println(path, "DONE")
 	}
 }
