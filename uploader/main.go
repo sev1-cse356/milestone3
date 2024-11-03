@@ -2,53 +2,25 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
 	"log"
-	"os/exec"
 
 	redis "github.com/redis/go-redis/v9"
 )
 
-func resize(path string) *exec.Cmd {
-	cmd := exec.Command("./resize.sh", path)
-
-	// Start the process in the background
-	err := cmd.Start()
-	if err != nil {
-		log.Fatalf("Failed to resize: %v", err)
-	}
-
-	return cmd
-}
-
-func generate(path string) *exec.Cmd {
-	cmd := exec.Command("./generate.sh", path)
-
-	// Start the process in the background
-	err := cmd.Start()
-	if err != nil {
-		log.Fatalf("Failed to generate: %v", err)
-	}
-
-	return cmd
-}
-
-func thumbnail(path string) *exec.Cmd {
-	cmd := exec.Command("./thumbnails.sh", path)
-
-	// Start the process in the background
-	err := cmd.Start()
-	if err != nil {
-		log.Fatalf("Failed to thumbnail: %v", err)
-	}
-
-	return cmd
+type UploadRequest struct {
+	Id   int    `json:"id"`
+	File string `json:"file"`
 }
 
 var ctx = context.Background()
 
 func main() {
 	// resize -> generate -> thumbnail
+
+	fmt.Println("Uploader is Starting...")
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "66d0f3556424d34b6b77c48f", // no password set
@@ -65,17 +37,20 @@ func main() {
 			panic(err)
 		}
 
-		path := msg.Payload
+		var data UploadRequest
 
-		resize(path)
-		generate(path)
-		thumbnail(path)
+		json.Unmarshal([]byte(msg.Payload), &data)
+
+		binaryData, err := base64.StdEncoding.DecodeString(data.File)
+		if err != nil {
+			log.Fatalf("Failed to decode Base64: %v", err)
+		}
 
 		// After all 3 operations are complete, send the path through the notify channel
-		err = rdb.Publish(ctx, "notify", path).Err()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(path, "DONE")
+		// err = rdb.Publish(ctx, "notify", path).Err()
+		// if err != nil {
+		// 	panic(err)
+		// }
+		fmt.Println(binaryData, "DONE")
 	}
 }

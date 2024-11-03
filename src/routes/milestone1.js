@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { isAuthenticated, db } = require("../middlewares");
-
+const path = require("path");
+const fs = require("fs");
 const MileStone1Router = Router();
 
 MileStone1Router.post("/adduser", async (req, res) => {

@@ -1,8 +1,19 @@
 const { Router } = require("express");
 const multer = require("multer");
 const { db, isAuthenticated, getAndIncrementId } = require("../middlewares");
-const upload = multer({ dest: "../media/" });
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 const Milestone2Router = Router();
+const { createClient } = require("redis");
+
+const redisClient = createClient({ url: "redis://redis:6379" });
+
+redisClient.on("error", (err) => console.error("Redis Client Error", err));
+
+// Connect to Redis
+(async () => {
+  await redisClient.connect();
+})();
 
 //TODO: 2. ADD AUTHENTICATION LATER
 Milestone2Router.post("/like", isAuthenticated, (req, res) => {
@@ -59,11 +70,14 @@ Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
   const { author, title } = req.body;
 
   const newVidId = getAndIncrementId();
+  redisClient.publish(
+    "upload",
+    JSON.stringify({ id: newVidId, file: req.file.buffer.toString("base64") })
+  );
 
   db[newVidId] = {
     author,
     title,
-    path: req.file.path,
     likes: 0,
     ups: new Set(),
     downs: new Set(),
