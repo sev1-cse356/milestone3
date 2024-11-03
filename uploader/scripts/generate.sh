@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# TODO: TAKE VIDEO AS ARGUMENT
-video="FILL"
-filename=$(basename "$video" .mp4)
-
+video="$1"
+filename=$(basename -- "$video")
+filename="${filename%.*}"
+outdir="../../src/media"
 # Run the ffmpeg command and place output in the respective folder
 ffmpeg -y -i "$video" \
 -map 0:v -b:v:0 254k -s:v:0 320x180 \
@@ -18,6 +18,6 @@ ffmpeg -y -i "$video" \
 -init_seg_name "${filename}_chunk_\$RepresentationID\$_init.m4s" \
 -media_seg_name "${filename}_chunk_\$RepresentationID\$_\$Bandwidth\$_\$Number\$.m4s" \
 -adaptation_sets "id=0,streams=v" \
-"${filename}_output.mpd"
+"${outdir}/${filename}_output.mpd"
 
 echo "Processed $video to ${filename}_output.mpd"
