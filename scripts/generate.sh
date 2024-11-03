@@ -7,7 +7,7 @@ for video in *.mp4; do
     filename=$(basename "$video" .mp4)
     
     # Run the ffmpeg command and place output in the respective folder
-    ffmpeg -i "$video" \
+    ffmpeg -y -i "$video" \
     -map 0:v -b:v:0 254k -s:v:0 320x180 \
     -map 0:v -b:v:1 507k -s:v:1 320x180 \
     -map 0:v -b:v:2 759k -s:v:2 480x270 \
