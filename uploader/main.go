@@ -51,6 +51,7 @@ func main() {
 func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	file, err := os.Create("input.mp4")
+
 	if err != nil {
 		fmt.Printf("Error creating file: %v\n", err)
 		return
@@ -74,6 +75,8 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-c:a", "copy", // Copy audio codec
 		paddedFileName, // Output file
 	)
+
+	// cmd.Stderr = os.Stdout
 
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Error starting the resize process:", err)

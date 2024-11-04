@@ -1,7 +1,10 @@
 FROM golang:1.23
 
 
-WORKDIR /app 
+WORKDIR /app/tmp
+WORKDIR /app
+
+RUN apt update && apt install ffmpeg -y
 
 COPY go.mod .
 

@@ -4,6 +4,8 @@ services:
       context: ./
     volumes:
       - ./src:/app/src
+    depends_on:
+      - redis
   redis:
     image: redis
     ports:

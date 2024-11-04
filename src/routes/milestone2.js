@@ -7,12 +7,20 @@ const Milestone2Router = Router();
 const { createClient } = require("redis");
 
 const redisClient = createClient({ url: "redis://redis:6379" });
+const subscriber = redisClient.duplicate();
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 // Connect to Redis
 (async () => {
   await redisClient.connect();
+})();
+
+(async () => {
+  await subscriber.connect();
+  await subscriber.subscribe("notify", (message) => {
+    db[message]["status"] = "complete";
+  });
 })();
 
 //TODO: 2. ADD AUTHENTICATION LATER
@@ -70,6 +78,7 @@ Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
   const { author, title } = req.body;
 
   const newVidId = getAndIncrementId();
+
   redisClient.publish(
     "upload",
     JSON.stringify({
@@ -86,6 +95,7 @@ Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
     ups: new Set(),
     downs: new Set(),
     nones: new Set(),
+    status: "processing",
   };
   // console.log(req.file);
   return res.json({ id: newVidId });
