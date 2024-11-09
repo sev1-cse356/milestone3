@@ -15,9 +15,28 @@
         width: 100%;
         max-width: 720px;
       }
+
+      #homeBtn {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        padding: 10px 20px;
+        background-color: #8e8e8e;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        z-index: 1000;
+      }
+      
+      #homeBtn:hover {
+        background-color: #a9a9a9;
+      }
     </style>
   </head>
   <body>
+    <button id="homeBtn">Return To Homepage</button>
     <div id="video-container">
       <h1>Playing Video: {{videoId}}</h1>
 
@@ -35,6 +54,7 @@
       const player = dashjs.MediaPlayer().create();
       const videoElement = document.getElementById('videoPlayer');
       const playPauseBtn = document.getElementById('playPauseBtn');
+      const homeBtn = document.getElementById('homeBtn');
       let currentVideoId = '{{videoId}}';
 
       // Initialize the player
@@ -88,6 +108,10 @@
         } else {
           videoElement.pause();
         }
+      });
+
+      homeBtn.addEventListener('click', () => {
+        window.location.href = '/'; 
       });
 
       // Load the initial video
