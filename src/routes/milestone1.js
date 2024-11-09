@@ -81,7 +81,7 @@ MileStone1Router.post("/check-auth", (req, res) => {
 MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
   const videoId = req.params.id;
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
-  const manifestPath = path.join(__dirname, "media", `${videoId}_output.mpd`);
+  const manifestPath = path.join(__dirname, '..', 'media', `${videoId}_output.mpd`);
   console.log(`Looking for manifest at: ${manifestPath}`);
 
   if (fs.existsSync(manifestPath)) {
