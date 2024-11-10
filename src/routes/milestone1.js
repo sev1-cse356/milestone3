@@ -25,11 +25,10 @@ MileStone1Router.post("/adduser", async (req, res) => {
 
 MileStone1Router.get("/verify", (req, res) => {
   const { email, key } = req.query;
-  console.table(req.query);
-  console.log(encodeURI(email).replace(/%20/g, "+"));
-  console.log(db);
   if (key) {
-    db[encodeURI(email).replace(/%20/g, "+")].disabled = false;
+    db[
+      encodeURI(email).replace(/%20/g, "+").replace(/%2D/g, "-")
+    ].disabled = false;
     return res.json({ status: "OK" });
   }
 
