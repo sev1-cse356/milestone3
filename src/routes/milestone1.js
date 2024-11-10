@@ -27,6 +27,8 @@ MileStone1Router.post("/adduser", async (req, res) => {
 
 MileStone1Router.get("/verify", (req, res) => {
   const { email, key } = req.query;
+  console.log("/api/verify");
+
   const encodedEmail = encodeURIComponent(email)
     .replace(/%20/g, "+")
     .replace(/%40/g, "@");
