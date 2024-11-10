@@ -16,6 +16,10 @@ MileStone1Router.post("/adduser", async (req, res) => {
       message: "DUPLICATE",
     });
   db[email] = { username, password, email, disabled: true, viewed: new Set() };
+
+  console.log("DB STATE AFTER ADDING USER", email);
+
+  console.table(db);
   if (email !== "admin@356.com") {
     await sendVerificationEmail(
       email,
