@@ -73,8 +73,8 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 
 //TODO: 4. ONLY ACCEPTS FORMDATA
 // TEST WITH
-// curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4file=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
-Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
+// curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4File=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
+Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const { author, title } = req.body;
 
   const newVidId = getAndIncrementId();
@@ -101,11 +101,15 @@ Milestone2Router.post("/upload", upload.single("mp4file"), (req, res) => {
   return res.json({ id: newVidId });
 });
 
-//TODO: 5.
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {
   const { id } = req.body;
+
+  if (id in db[req.session.email].viewed) {
+    return res.json({ status: "OK", viewed: true });
+  }
+
   db[req.session.email].viewed.add(id);
-  return res.json({ status: "OK" });
+  return res.json({ status: "OK", viewed: false });
 });
 
 //TODO: 7.
