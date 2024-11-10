@@ -123,7 +123,7 @@ Milestone2Router.get("/processing-status", (req, res) => {
     videos.push({ id: entry.id, title: entry.title, status: entry.status });
     start++;
   }
-
+  console.log(videos);
   return res.json({ status: "OK", videos });
 });
 
