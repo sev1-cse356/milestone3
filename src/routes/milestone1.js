@@ -7,6 +7,8 @@ const { sendVerificationEmail } = require("../mailer");
 
 MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
+  console.log("/adduser");
+  console.table(req.body);
   if (email in db)
     return res.json({
       status: "ERROR",
