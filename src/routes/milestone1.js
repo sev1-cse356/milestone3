@@ -3,6 +3,7 @@ const { isAuthenticated, db } = require("../middlewares");
 const path = require("path");
 const fs = require("fs");
 const MileStone1Router = Router();
+const { sendVerificationEmail } = require("../mailer");
 
 MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
@@ -80,9 +81,9 @@ MileStone1Router.post("/check-auth", (req, res) => {
 
 MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
   const videoId = req.params.id;
-  
+
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
-  const manifestPath = path.join(__dirname, '../media', `${videoId}`);
+  const manifestPath = path.join(__dirname, "../media", `${videoId}`);
   // console.log(`Manifest ID: ${videoId}`)
   // console.log(`Looking for manifest at: ${manifestPath}`);
 
@@ -99,7 +100,11 @@ MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
 
 MileStone1Router.get("/thumbnail/:id", (req, res) => {
   const videoId = req.params.id;
-  const thumbnailPath = path.join(__dirname, "../media", `${videoId}_padded.jpg`);
+  const thumbnailPath = path.join(
+    __dirname,
+    "../media",
+    `${videoId}_padded.jpg`
+  );
   console.log("Looking for thumbnail at:", thumbnailPath);
 
   if (fs.existsSync(thumbnailPath)) {
