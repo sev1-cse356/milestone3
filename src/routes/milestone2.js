@@ -124,7 +124,7 @@ Milestone2Router.get("/processing-status", (req, res) => {
     start++;
   }
 
-  return res.json({ videos });
+  return res.json({ status: "OK", videos });
 });
 
 module.exports = Milestone2Router;
