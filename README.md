@@ -4,6 +4,7 @@
 - $docker-compose up --build
 - $./smtp.sh
 
+execute the docker container to see the videos </br>
 - $ docker exec -it milestone2-express-1 bash
 
 -----------
