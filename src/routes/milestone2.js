@@ -98,7 +98,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     status: "processing",
   };
   // console.log(req.file);
-  return res.json({ id: newVidId });
+  return res.json({ status: "OK", id: newVidId });
 });
 
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {

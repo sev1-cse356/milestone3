@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	redis "github.com/redis/go-redis/v9"
 )
@@ -50,6 +51,7 @@ func main() {
 
 func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
+	startTime := time.Now()
 	file, err := os.Create("input.mp4")
 
 	if err != nil {
@@ -163,5 +165,6 @@ func process(rdb *redis.Client, data UploadRequest) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(data.Id, "DONE")
+	duration := time.Now().Sub(startTime)
+	fmt.Println(data.Id, "DONE", duration)
 }
