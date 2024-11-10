@@ -17,6 +17,7 @@ services:
       resources:
         reservations:
           memory: 1G
+    command: redis-server /usr/local/etc/redis/redis.conf
   nginx:
     image: nginx
     ports:
