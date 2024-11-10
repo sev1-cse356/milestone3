@@ -4,6 +4,7 @@ services:
       context: ./
     volumes:
       - ./src:/app/src
+      - /mnt/video-volume/lost+found:/app/src/media
     depends_on:
       - redis
   redis:
@@ -18,6 +19,8 @@ services:
       - 80:80
     volumes:
       - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - express
     
   uploader:
     build:
