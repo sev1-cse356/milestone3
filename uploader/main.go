@@ -25,9 +25,10 @@ func main() {
 
 	fmt.Println("Uploader :3")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis:6379",
-		Password: "66d0f3556424d34b6b77c48f", // no password set
-		DB:       0,                          // use default DB
+		Addr:        "redis:6379",
+		Password:    "66d0f3556424d34b6b77c48f", // no password set
+		DB:          0,                          // use default DB
+		ReadTimeout: -1,
 	})
 
 	pubsub := rdb.Subscribe(ctx, "upload")
