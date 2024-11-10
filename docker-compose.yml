@@ -16,7 +16,7 @@ services:
     deploy:
       resources:
         reservations:
-          memory: 512M
+          memory: 1G
   nginx:
     image: nginx
     ports:
