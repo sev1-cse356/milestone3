@@ -8,7 +8,7 @@ const { sendVerificationEmail } = require("../mailer");
 MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   console.log("/adduser");
-  console.table(req.body);
+  // console.table(req.body);
   if (email in db)
     return res.json({
       status: "ERROR",
@@ -17,9 +17,8 @@ MileStone1Router.post("/adduser", async (req, res) => {
     });
   db[email] = { username, password, email, disabled: true, viewed: new Set() };
 
-  console.log("DB STATE AFTER ADDING USER", email);
-
-  console.table(db);
+  // console.log("DB STATE AFTER ADDING USER", email);
+  // console.table(db);
   if (email !== "admin@356.com") {
     await sendVerificationEmail(
       email,
@@ -32,8 +31,8 @@ MileStone1Router.post("/adduser", async (req, res) => {
 MileStone1Router.get("/verify", (req, res) => {
   const { email, key } = req.query;
   console.log("/api/verify");
-  console.log("DB STATE");
-  console.table(db);
+  // console.log("DB STATE");
+  // console.table(db);
   const encodedEmail = encodeURIComponent(email)
     .replace(/%20/g, "+")
     .replace(/%40/g, "@");
