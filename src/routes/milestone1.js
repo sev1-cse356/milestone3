@@ -40,16 +40,18 @@ MileStone1Router.get("/verify", (req, res) => {
 
   console.log(encodedEmail);
 
-  if (key) {
-    db[encodedEmail].disabled = false;
-    return res.json({ status: "OK" });
+  try {
+    if (key) {
+      db[encodedEmail].disabled = false;
+      return res.json({ status: "OK" });
+    }
+  } catch {
+    return res.json({
+      status: "ERROR",
+      error: true,
+      message: "your error message",
+    });
   }
-
-  return res.json({
-    status: "ERROR",
-    error: true,
-    message: "your error message",
-  });
 });
 
 MileStone1Router.post("/login", (req, res) => {
