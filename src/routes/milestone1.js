@@ -17,7 +17,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
   if (email !== "admin@356.com") {
     await sendVerificationEmail(
       email,
-      `http://${req.headers.host}/api/verify?email=${email}&key=somerandomstring`
+      `http://http://sev-1.cse356.compas.cs.stonybrook.edu/api/verify?email=${email}&key=somerandomstring`
     );
   }
   return res.json({ status: "OK" });
