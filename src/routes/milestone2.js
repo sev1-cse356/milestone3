@@ -118,7 +118,7 @@ Milestone2Router.get("/processing-status", (req, res) => {
   console.log("/api/processing-status");
 
   const videos = [];
-  while (start in db) {
+  while (start.toString() in db) {
     const entry = db[start];
     videos.push({ id: entry.id, title: entry.title, status: entry.status });
     start++;
