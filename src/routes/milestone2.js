@@ -113,8 +113,18 @@ Milestone2Router.post("/view", isAuthenticated, (req, res) => {
 });
 
 //TODO: 7.
-Milestone2Router.post("/processing-status", (req, res) => {
-  return res.send("TO BE IMPLEMENTED");
+Milestone2Router.get("/processing-status", (req, res) => {
+  let start = 500;
+  console.log("/api/processing-status");
+
+  const videos = [];
+  while (start in db) {
+    const entry = db[start];
+    videos.push({ id: entry.id, title: entry.title, status: entry.status });
+    start++;
+  }
+
+  return res.json({ videos });
 });
 
 module.exports = Milestone2Router;
