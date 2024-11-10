@@ -4,6 +4,8 @@
 - $docker-compose up --build
 - $./smtp.sh
 
+- $ docker exec -it milestone2-express-1 bash
+
 -----------
 
 # Milestone #2 Description
