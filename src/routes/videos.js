@@ -3,14 +3,6 @@ const fs = require("fs");
 const path = require("path");
 const VideoRouter = Router();
 
-// const videos = [
-//  { id: '320x180_254k', title: 'Video 1', description: 'Low-res video', thumbnail: '/media/320x180_254k.jpg' },
-//  { id: '320x180_507k', title: 'Video 2', description: 'Another low-res video', thumbnail: '/media/320x180_507k.jpg' },
-//  { id: '480x270_759k', title: 'Video 3', description: 'Mid-res video', thumbnail: '/media/480x270_759k.jpg' },
-//  { id: '640x360_1013k', title: 'Video 4', description: 'High-res video', thumbnail: '/media/640x360_1013k.jpg' },
-//  { id: '640x360_1254k', title: 'Video 5', description: 'Another high-res video', thumbnail: '/media/640x360_1254k.jpg' },
-// ];
-
 let videos = [];
 
 fs.readFile(
@@ -29,10 +21,10 @@ fs.readFile(
         id: id.replace(".mp4", ""),
         title: id.replace(".mp4", ""),
         description,
-        thumbnail: `/media/${id.replace(".mp4", ".jpg")}`,
+        thumbnail: `../media/${id.replace(".mp4", "")}_padded.jpg`,
       }));
 
-      console.log("Videos loaded:", videos);
+      console.log(`${videos.length} videos were loaded`);
     } catch (parseError) {
       console.error("Error parsing m.json:", parseError);
     }

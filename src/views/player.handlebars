@@ -62,7 +62,7 @@
 
       // Load the video manifest for the given video ID
       function loadVideo(videoId) {
-        const manifestUrl = `/api/manifest/${videoId}`;
+        const manifestUrl = `/api/manifest/${videoId}_padded_output.mpd`;
         console.log(`Loading video: ${videoId}, URL: ${manifestUrl}`);
 
         // Make sure the player is initialized and ready
