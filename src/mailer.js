@@ -26,7 +26,7 @@ module.exports.sendVerificationEmail = async function sendVerificationEmail(
     to, // list of receivers
     subject: "Your Verification Code", // Subject line
     text, // plain text body
-    cc: "jie.chen.3@stonybrook.edu",
+    // cc: "jie.chen.3@stonybrook.edu",
   });
 
   console.log("Message sent: %s", info.messageId);
