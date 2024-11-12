@@ -18,12 +18,14 @@ services:
         reservations:
           memory: 1G
     command: redis-server /usr/local/etc/redis/redis.conf
+
   nginx:
     image: nginx
     ports:
       - 80:80
     volumes:
       - ./nginx:/etc/nginx/conf.d
+      - /mnt/video-volume/lost+found:/usr/share/nginx/html/media
     depends_on:
       - express
     

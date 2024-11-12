@@ -52,11 +52,11 @@ app.get("/upload", (req, res) => {
 });
 
 // Protect the /media route
-app.use(
-  "/media",
-  isAuthenticated,
-  express.static(path.join(__dirname, "media"))
-);
+// app.use(
+//   "/media",
+//   isAuthenticated,
+//   express.static(path.join(__dirname, "media"))
+// );
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
