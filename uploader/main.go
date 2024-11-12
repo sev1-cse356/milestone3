@@ -145,7 +145,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-seg_duration", "10", // Set segment duration
 		"-use_template", "1", // Use template for segment names
 		"-use_timeline", "1", // Use timeline for segments
-		"-init_seg_name", fmt.Sprintf(`%s_padded__chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
+		"-init_seg_name", fmt.Sprintf(`%s_padded_chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
 		"-media_seg_name", fmt.Sprintf(`%s_padded_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, data.Id), // Media segment name
 		"-adaptation_sets", "id=0,streams=v", // Adaptation sets
 		fmt.Sprintf("./tmp/%d_padded_output.mpd", data.Id), // Output DASH manifest file
