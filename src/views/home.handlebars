@@ -103,14 +103,14 @@
           data.randomVideos.forEach((video) => {
             const videoItem = document.createElement('div');
             videoItem.classList.add('video-item');
-
-            videoItem.addEventListener('click', () => {
+            
+            videoItem.onclick = () => {
               window.location.href = `/play/${video.id}`;
-            });
+            };
 
             videoItem.innerHTML = `
               <h3>${video.video.title}</h3>
-              <img class="thumbnail" src="${video.video.thumbnail}" alt="${video.video.title}"> 
+              <img class="thumbnail" src="/api/thumbnail/${video.id}" alt="${video.video.title}"> 
               <p>${video.video.description}</p>
             `;
 

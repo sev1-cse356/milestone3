@@ -67,7 +67,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		return
 	}
 
-	paddedFileName := fmt.Sprintf("tmp/%d-padded.mp4", data.Id)
+	paddedFileName := fmt.Sprintf("%d_padded.mp4", data.Id)
 
 	cmd := exec.Command(
 		"ffmpeg",
@@ -97,7 +97,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-vf", "scale=320:180", // Video filter to scale the output
 		"-frames:v", "1", // Capture only 1 frame
 		"-q:v", "2", // Set quality level (lower means better quality)
-		fmt.Sprintf("tmp/%d-thumbnail.jpg", data.Id), // Output file path
+		fmt.Sprintf("%d_padded.jpg", data.Id), // Output file path
 	)
 
 	if err := tncmd.Start(); err != nil {
@@ -146,7 +146,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-init_seg_name", fmt.Sprintf(`%s_chunk_$RepresentationID$_init.m4s`, noextFileName), // Initial segment name
 		"-media_seg_name", fmt.Sprintf(`%s_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, noextFileName), // Media segment name
 		"-adaptation_sets", "id=0,streams=v", // Adaptation sets
-		fmt.Sprintf("tmp/%d-output.mpd", data.Id), // Output DASH manifest file
+		fmt.Sprintf("%d_output.mpd", data.Id), // Output DASH manifest file
 	)
 
 	// splitCmd.Stderr = os.Stdout
@@ -169,3 +169,4 @@ func process(rdb *redis.Client, data UploadRequest) {
 	duration := time.Now().Sub(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 }
+

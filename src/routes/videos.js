@@ -17,7 +17,6 @@ fs.readFile(path.join(__dirname, "../media", "m2.json"), "utf8", (err, data) => 
       author: "default",
       title: id.replace(".mp4", ""),
       description: description || "random video description",
-      thumbnail: `http://sev-1.cse356.compas.cs.stonybrook.edu/media/${id.replace(".mp4", "")}_padded.jpg`,
       likes: 0,
       ups: new Set(),
       downs: new Set(),

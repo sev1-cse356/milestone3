@@ -32,6 +32,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
     db.videos[id] = {
       author: "",
       title: id,
+      description: "some random description",
       likes: 0,
       ups: new Set(),
       downs: new Set(),
@@ -89,7 +90,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const { author, title } = req.body;
 
   const newVidId = getAndIncrementId();
-
+  console.log("before publish")
   redisClient.publish(
     "upload",
     JSON.stringify({
@@ -98,7 +99,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
       filename: req.file.originalname,
     })
   );
-
+  console.log("after publish")
   db.videos[newVidId] = {
     author,
     title,
@@ -115,6 +116,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
 
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {
   const { id } = req.body;
+  
   if (db.users[req.session.email].viewed.has(id)) {
     return res.json({ status: "OK", viewed: true });
   } else {
@@ -192,11 +194,10 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
     // Step 3: Sort users by similarity in descending order
     similarityScores.sort((a, b) => b.similarity - a.similarity);
-    console.log("Similarity scores:", similarityScores);
 
     // Step 4: Get recommended videos based on similar users
     for (const { user: similarUser } of similarityScores) {
-      const otherLikes = db.users[similarUser].like;
+      const otherLikes = db.users[similarUser].liked;
       for (const videoId of otherLikes) {
         if (!db.users[email].viewed.has(videoId)) {
           // Only add if not already watched
@@ -235,6 +236,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   // Step 7: Format the response
   const videoList = Array.from(recommendedVideos).map((id) => {
     const video = db.videos[id];
+
     return {
       id,
       description: video.description || "",

@@ -121,7 +121,6 @@ MileStone1Router.get("/thumbnail/:id", (req, res) => {
     "../media",
     `${videoId}_padded.jpg`
   );
-  console.log("Looking for thumbnail at:", thumbnailPath);
 
   if (fs.existsSync(thumbnailPath)) {
     res.sendFile(thumbnailPath);
