@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"strings"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
@@ -113,7 +112,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		return
 	}
 
-	noextFileName := strings.Split(data.Filename, ".mp4")[0]
+	// noextFileName := strings.Split(data.Filename, ".mp4")[0]
 
 	splitCmd := exec.Command("ffmpeg",
 		"-y",                 // Overwrite output files without asking
