@@ -20,16 +20,23 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 (async () => {
   await subscriber.connect();
   await subscriber.subscribe("notify", (message) => {
-    db[message]["status"] = "complete";
+    db.videos[message]["status"] = "complete";
   });
 })();
 
 //TODO: 2. ADD AUTHENTICATION LATER
 Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const { id, value } = req.body;
- 
+
   if (!(id in db.videos)) {
-    db.videos[id] = { author: "", title: id, likes: 0, ups: new Set(), downs: new Set(), usersViewed: new Set() };
+    db.videos[id] = {
+      author: "",
+      title: id,
+      likes: 0,
+      ups: new Set(),
+      downs: new Set(),
+      usersViewed: new Set(),
+    };
   }
 
   const entry = db.videos[id];
@@ -38,7 +45,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 
   if (
     (value && entry.ups.has(req.session.email)) ||
-    (value !== null && !value && entry.downs.has(req.session.email)) 
+    (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
     return res.json({
@@ -136,93 +143,112 @@ Milestone2Router.get("/processing-status", (req, res) => {
   return res.json({ status: "OK", videos: videos });
 });
 
-
 Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
-    const { count } = req.body;
-    const email = req.session.email;
+  const { count } = req.body;
+  const email = req.session.email;
 
-    if (!db.users[email]) {
-      return res.status(404).json({ error: "User data not found" });
-    }
-    
-    const videoIds = Object.keys(db.videos); // Assume each entry in `db` has a unique video ID
-    const recommendedVideos = new Set();
-    
-    if (Object.keys(db.users).length > 1) {
-      // Step 1: Prepare the list of all video IDs and the user's preference vector
+  if (!db.users[email]) {
+    return res.status(404).json({ error: "User data not found" });
+  }
 
-      const userVector = videoIds.map(videoId =>
+  const videoIds = Object.keys(db.videos); // Assume each entry in `db` has a unique video ID
+  const recommendedVideos = new Set();
+
+  if (Object.keys(db.users).length > 1) {
+    // Step 1: Prepare the list of all video IDs and the user's preference vector
+
+    const userVector = videoIds.map(
+      (videoId) =>
         // db[username].ups.has(videoId) ? 1 : // Liked
         // db[username].downs.has(videoId) ? -1 : // Disliked
-        db.videos[videoId].ups.has(email) ? 1 :
-        db.videos[videoId].downs.has(email) ? -1 :
-        0 // No interaction
-      );
+        db.videos[videoId].ups.has(email)
+          ? 1
+          : db.videos[videoId].downs.has(email)
+          ? -1
+          : 0 // No interaction
+    );
 
-      // Step 2: Calculate similarity with other users using the `compute-cosine-similarity` library
-      const similarityScores = [];
-      
-      Object.keys(db.users).forEach((otherEmail) => {
-        if (otherEmail !== email) {
-          const otherUserVector = videoIds.map(videoId =>
-            // db[otherUser].ups.has(videoId) ? 1 : 
-            // db[otherUser].downs.has(videoId) ? -1 :
-            db.videos[videoId].ups.has(otherEmail) ? 1 :
-            db.videos[videoId].downs.has(otherEmail) ? -1 : 
-            0
-          );
-    
-          const similarity = cosineSimilarity(userVector, otherUserVector);
-          similarityScores.push({ user: otherEmail, similarity: similarity });
-        }
-      })
-      
-      // Step 3: Sort users by similarity in descending order
-      similarityScores.sort((a, b) => b.similarity - a.similarity);
+    // Step 2: Calculate similarity with other users using the `compute-cosine-similarity` library
+    const similarityScores = [];
 
-      // Step 4: Get recommended videos based on similar users
-      for (const { user: similarUser } of similarityScores) {
-        const otherLikes = db.videos[similarUser].ups;
-        for (const videoId of otherLikes) {
-          if (!db.users[email].viewed.has(videoId)) { // Only add if not already watched
-            recommendedVideos.add(videoId);
-            if (recommendedVideos.size >= count) break;
-          }
-        }
-        if (recommendedVideos.size >= count) break;
+    Object.keys(db.users).forEach((otherEmail) => {
+      if (otherEmail !== email) {
+        const otherUserVector = videoIds.map((videoId) =>
+          // db[otherUser].ups.has(videoId) ? 1 :
+          // db[otherUser].downs.has(videoId) ? -1 :
+          db.videos[videoId].ups.has(otherEmail)
+            ? 1
+            : db.videos[videoId].downs.has(otherEmail)
+            ? -1
+            : 0
+        );
+
+        const similarity = cosineSimilarity(userVector, otherUserVector);
+        similarityScores.push({ user: otherEmail, similarity: similarity });
       }
-    }
-  
-    // Step 5: Fallback to random unwatched videos if needed
-    const unwatchedVideos = videoIds.filter(videoId => !db.users[email].viewed.has(videoId));
-    while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
-      const randomVideo = unwatchedVideos.splice(Math.floor(Math.random() * unwatchedVideos.length), 1)[0];
-      recommendedVideos.add(randomVideo);
-    }
-  
-    // Step 6: Fallback to random watched videos if still needed
-    const watchedVideos = videoIds.filter(videoId => db.users[email].viewed.has(videoId));
-    while (recommendedVideos.size < count && watchedVideos.length > 0) {
-      const randomVideo = watchedVideos.splice(Math.floor(Math.random() * watchedVideos.length), 1)[0];
-      recommendedVideos.add(randomVideo);
-    }
-  
-    // Step 7: Format the response
-    const videoList = Array.from(recommendedVideos).map(id => {
-      const video = db.videos[id];
-      return {
-        id,
-        description: video.description || "",
-        title: video.title || "",
-        watched: db.users[email].viewed.has(id),
-        liked: video.ups.has(email) ? true : video.downs.has(email) ? false : null,
-        likevalues: video.likes
-      };
     });
-  
-    return res.json({ status: "OK", videos: videoList.slice(0, count) });
+
+    // Step 3: Sort users by similarity in descending order
+    similarityScores.sort((a, b) => b.similarity - a.similarity);
+
+    // Step 4: Get recommended videos based on similar users
+    for (const { user: similarUser } of similarityScores) {
+      const otherLikes = db.videos[similarUser].ups;
+      for (const videoId of otherLikes) {
+        if (!db.users[email].viewed.has(videoId)) {
+          // Only add if not already watched
+          recommendedVideos.add(videoId);
+          if (recommendedVideos.size >= count) break;
+        }
+      }
+      if (recommendedVideos.size >= count) break;
+    }
+  }
+
+  // Step 5: Fallback to random unwatched videos if needed
+  const unwatchedVideos = videoIds.filter(
+    (videoId) => !db.users[email].viewed.has(videoId)
+  );
+  while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
+    const randomVideo = unwatchedVideos.splice(
+      Math.floor(Math.random() * unwatchedVideos.length),
+      1
+    )[0];
+    recommendedVideos.add(randomVideo);
+  }
+
+  // Step 6: Fallback to random watched videos if still needed
+  const watchedVideos = videoIds.filter((videoId) =>
+    db.users[email].viewed.has(videoId)
+  );
+  while (recommendedVideos.size < count && watchedVideos.length > 0) {
+    const randomVideo = watchedVideos.splice(
+      Math.floor(Math.random() * watchedVideos.length),
+      1
+    )[0];
+    recommendedVideos.add(randomVideo);
+  }
+
+  // Step 7: Format the response
+  const videoList = Array.from(recommendedVideos).map((id) => {
+    const video = db.videos[id];
+    return {
+      id,
+      description: video.description || "",
+      title: video.title || "",
+      watched: db.users[email].viewed.has(id),
+      liked: video.ups.has(email)
+        ? true
+        : video.downs.has(email)
+        ? false
+        : null,
+      likevalues: video.likes,
+    };
   });
-  
-  module.exports = Milestone2Router;
+
+  return res.json({ status: "OK", videos: videoList.slice(0, count) });
+});
+
+module.exports = Milestone2Router;
 
 module.exports = Milestone2Router;
