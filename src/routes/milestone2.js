@@ -29,7 +29,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const { id, value } = req.body;
 
   console.log('/like')
-  console.log(value)
+  console.table(req.body)
 
   if (!(id in db.videos)) {
     db.videos[id] = {
