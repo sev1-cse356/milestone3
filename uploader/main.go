@@ -90,10 +90,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	if err := cmd.Wait(); err != nil {
 		fmt.Println(data.Id, "Error waiting for resize to finish:", err)
-		err = rdb.Publish(ctx, "notify", data.Id).Err()
-		if err != nil {
-			panic(err)
-		}
+
 		return
 	}
 
@@ -113,10 +110,6 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	if err := tncmd.Wait(); err != nil {
 		fmt.Println(data.Id, "Error waiting for thumbnail to finish:", err)
-		err = rdb.Publish(ctx, "notify", data.Id).Err()
-		if err != nil {
-			panic(err)
-		}
 		return
 	}
 
@@ -168,10 +161,6 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	if err := splitCmd.Wait(); err != nil {
 		fmt.Println(data.Id, "Error waiting for split to finish:", err)
-		err = rdb.Publish(ctx, "notify", data.Id).Err()
-		if err != nil {
-			panic(err)
-		}
 		return
 	}
 
