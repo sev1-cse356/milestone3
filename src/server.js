@@ -48,7 +48,7 @@ app.get("/", (req, res) => {
 
 //TODO: 6.
 app.get("/upload", (req, res) => {
-  return res.send("TO BE IMPLEMENTED");
+   return res.render("upload");
 });
 
 // Protect the /media route
