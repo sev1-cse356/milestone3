@@ -1,0 +1,40 @@
+{{!-- upload.handlebars --}}
+<h1>Upload Video</h1>
+<form id="uploadForm" enctype="multipart/form-data" method="POST" action="/api/upload">
+  <label for="author">Author:</label>
+  <input type="text" id="author" name="author" required><br><br>
+  
+  <label for="title">Title:</label>
+  <input type="text" id="title" name="title" required><br><br>
+  
+  <label for="mp4File">Video File (MP4):</label>
+  <input type="file" id="mp4File" name="mp4File" accept="video/mp4" required><br><br>
+  
+  <button type="submit">Upload</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+  document.getElementById("uploadForm").addEventListener("submit", async function (event) {
+    event.preventDefault(); // Prevent form submission
+
+    const formData = new FormData();
+    formData.append("author", document.getElementById("author").value);
+    formData.append("title", document.getElementById("title").value);
+    formData.append("mp4File", document.getElementById("mp4File").files[0]);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      document.getElementById("result").innerHTML = JSON.stringify(result, null, 2);
+    } catch (error) {
+      console.error("Error uploading video:", error);
+      document.getElementById("result").innerHTML = "Upload failed. Please try again.";
+    }
+  });
+</script>

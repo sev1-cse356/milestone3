@@ -15,7 +15,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
       error: true,
       message: "DUPLICATE",
     });
-  db.users[email] = { username, password, email, disabled: true, viewed: new Set() };
+  db.users[email] = { username, password, email, disabled: true, viewed: new Set(), liked: new Set() };
 
   // console.log("DB STATE AFTER ADDING USER", email);
   // console.table(db);

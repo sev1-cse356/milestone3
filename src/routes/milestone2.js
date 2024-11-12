@@ -62,15 +62,18 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
     incr = 1;
     entry.ups.add(req.session.email);
     entry.downs.delete(req.session.email);
+    db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
     incr = -1;
     entry.downs.add(req.session.email);
     entry.ups.delete(req.session.email);
+    db.users[req.session.email].liked.delete(id);
     // entry.nones.delete(req.session.username);
   } else {
     entry.ups.delete(req.session.email);
     entry.downs.delete(req.session.email);
+    db.users[req.session.email].liked.delete(id);
     // entry.nones.add(req.session.username);
   }
 
@@ -112,8 +115,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
 
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {
   const { id } = req.body;
-
-  if (id in db.users[req.session.email].viewed) {
+  if (db.users[req.session.email].viewed.has(id)) {
     return res.json({ status: "OK", viewed: true });
   } else {
     db.users[req.session.email].viewed.add(id);
@@ -193,7 +195,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
     // Step 4: Get recommended videos based on similar users
     for (const { user: similarUser } of similarityScores) {
-      const otherLikes = db.videos[similarUser].ups;
+      const otherLikes = db.users[similarUser].like;
       for (const videoId of otherLikes) {
         if (!db.users[email].viewed.has(videoId)) {
           // Only add if not already watched
