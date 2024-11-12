@@ -82,8 +82,17 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
     // entry.nones.delete(req.session.username);
   } else {
     console.log("UNSET")
-    entry.ups.delete(req.session.email);
-    entry.downs.delete(req.session.email);
+
+    if (entry.ups.has(req.session.email)) {
+      entry.ups.delete(req.session.email);
+      incr = -1
+    }
+
+    if (entry.downs.has(req.session.email)) {
+      entry.downs.delete(req.session.email);
+      incr = 1
+    }
+
     db.users[req.session.email].liked.delete(id);
     // entry.nones.add(req.session.username);
   }
