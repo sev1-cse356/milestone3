@@ -75,7 +75,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"ffmpeg",
 		"-y",        // Overwrite output files
 		"-f", "mp4", // Input format; change as needed based on your data
-		"-i", "input.mp4",
+		"-i", fmt.Sprintf("input-%d.mp4", data.Id),
 		"-vf", `scale=w=iw*min(1280/iw\,720/ih):h=ih*min(1280/iw\,720/ih),pad=1280:720:(1280-iw*min(1280/iw\,720/ih))/2:(720-ih*min(1280/iw\,720/ih))/2`, // Video filter
 		"-c:a", "copy", // Copy audio codec
 		paddedFileName, // Output file
