@@ -80,6 +80,15 @@
       } else {
         console.error('Video list element not found!');
       }
+
+      document.getElementById("loginForm").addEventListener("submit", (e)=>{
+      e.preventDefault()
+      const fd = new FormData(e.target)
+      const username = fd.get("username")
+      const password = fd.get("password")
+
+      login(username, password)
+    })
     });
 
     // Fetch videos from the server and append them to the list
@@ -142,15 +151,16 @@
     }
 
     // Login function
-    function login() {
+    function login(username, password) {
       fetch("/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: "admin", password: "abc123" }),
+        body: JSON.stringify({ username: username || "admin", password: password || "abc123" }),
       }).then(() => {
         window.location.reload();
       });
     }
+
 
     // Logout function
     function logout() {
@@ -175,8 +185,16 @@
   <div>
     <button onclick="addDefaultUser()">Add Default User</button>
     <pre>The default credentials: { "username": "admin", "password": "abc123", "email": "admin@356.com" }</pre>
+
     <button onclick="login()">Login As Default User</button>
   </div>
+  <form id="loginForm">
+    <label>Username</label>
+    <input name="username"></input>
+    <label>Password</label>
+    <input name="password"></input>
+    <button type="submit">Login</button>
+  </form>
   {{/if}}
 </body>
 
