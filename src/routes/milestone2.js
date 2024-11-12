@@ -192,6 +192,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
     // Step 3: Sort users by similarity in descending order
     similarityScores.sort((a, b) => b.similarity - a.similarity);
+    console.log("Similarity scores:", similarityScores);
 
     // Step 4: Get recommended videos based on similar users
     for (const { user: similarUser } of similarityScores) {

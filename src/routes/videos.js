@@ -9,22 +9,22 @@ fs.readFile(path.join(__dirname, "../media", "m2.json"), "utf8", (err, data) => 
     console.error("Error reading m2.json:", err);
     return;
   }
-  
+
   try {
     const jsonData = JSON.parse(data);
-    
-    const videos = Object.entries(jsonData).map(([id, description]) => ({ 
+
+    const videos = Object.entries(jsonData).map(([id, description]) => ({
       author: "default",
-      title: id.replace(".mp4", ""), 
-      description: description || "random video description", 
-      thumbnail: `../media/${id.replace(".mp4", "")}_padded.jpg`, 
+      title: id.replace(".mp4", ""),
+      description: description || "random video description",
+      thumbnail: `http://sev-1.cse356.compas.cs.stonybrook.edu/media/${id.replace(".mp4", "")}_padded.jpg`,
       likes: 0,
-      ups: new Set(), 
-      downs: new Set(), 
-      usersViewed: new Set(), 
-      status: "complete", 
+      ups: new Set(),
+      downs: new Set(),
+      usersViewed: new Set(),
+      status: "complete",
     }));
-    
+
     videos.forEach((video, index) => {
       const videoId = Object.keys(jsonData)[index].replace(".mp4", "");
       db.videos[videoId] = video;
