@@ -80,6 +80,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-c:a", "copy", // Copy audio codec
 		paddedFileName, // Output file
 	)
+	cmd.Stderr = os.Stdout
 
 	// cmd.Stderr = os.Stdout
 
