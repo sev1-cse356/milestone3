@@ -69,6 +69,8 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	paddedFileName := fmt.Sprintf("%d_padded.mp4", data.Id)
 
+	fmt.Printf("Processing: %v\n", paddedFileName)
+
 	cmd := exec.Command(
 		"ffmpeg",
 		"-y",        // Overwrite output files
