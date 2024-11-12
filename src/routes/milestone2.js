@@ -28,6 +28,9 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const { id, value } = req.body;
 
+  console.log('/like')
+  console.log(value)
+
   if (!(id in db.videos)) {
     db.videos[id] = {
       author: "",
@@ -42,10 +45,11 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 
   const entry = db.videos[id];
 
+  console.table(entry)
   // Check if the user is performing the same action twice
 
   if (
-    (value && entry.ups.has(req.session.email)) ||
+    (value === true && entry.ups.has(req.session.email)) ||
     (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
