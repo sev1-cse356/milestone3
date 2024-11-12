@@ -148,7 +148,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-init_seg_name", fmt.Sprintf(`%s_padded__chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
 		"-media_seg_name", fmt.Sprintf(`%s_padded_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, data.Id), // Media segment name
 		"-adaptation_sets", "id=0,streams=v", // Adaptation sets
-		fmt.Sprintf("./tmp/%d_output.mpd", data.Id), // Output DASH manifest file
+		fmt.Sprintf("./tmp/%d_padded_output.mpd", data.Id), // Output DASH manifest file
 	)
 
 	// splitCmd.Stderr = os.Stdout
