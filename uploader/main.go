@@ -53,7 +53,7 @@ func main() {
 func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	startTime := time.Now()
-	file, err := os.Create("input.mp4")
+	file, err := os.Create(fmt.Sprintf("input-%d.mp4", data.Id))
 
 	if err != nil {
 		fmt.Printf("Error creating file: %v\n", err)
