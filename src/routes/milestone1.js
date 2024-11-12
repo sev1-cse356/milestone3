@@ -9,13 +9,13 @@ MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   console.log("/adduser");
   // console.table(req.body);
-  if (email in db)
+  if (email in db.users)
     return res.json({
       status: "ERROR",
       error: true,
       message: "DUPLICATE",
     });
-  db[email] = { username, password, email, disabled: true, viewed: new Set() };
+  db.users[email] = { username, password, email, disabled: true, viewed: new Set() };
 
   // console.log("DB STATE AFTER ADDING USER", email);
   // console.table(db);
@@ -41,7 +41,7 @@ MileStone1Router.get("/verify", (req, res) => {
 
   try {
     if (key) {
-      db[encodedEmail].disabled = false;
+      db.users[encodedEmail].disabled = false;
       return res.json({ status: "OK" });
     }
   } catch {
@@ -56,8 +56,8 @@ MileStone1Router.get("/verify", (req, res) => {
 MileStone1Router.post("/login", (req, res) => {
   const { username, password } = req.body;
 
-  Object.keys(db).forEach((e) => {
-    const entry = db[e];
+  Object.keys(db.users).forEach((e) => {
+    const entry = db.users[e];
     if (
       entry.username === username &&
       entry.password === password &&

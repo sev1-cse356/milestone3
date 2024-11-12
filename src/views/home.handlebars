@@ -84,33 +84,25 @@
 
     // Fetch videos from the server and append them to the list
     async function fetchVideos(videoList) {
+      const count = 10;
       try {
-        const response = await fetch(`/api/videos/${page}`);
+        {{!-- const response = await fetch(`/api/videos/${page}`); --}}
+        const response = await fetch(`/api/videos/homepage/${count}`);
         const data = await response.json();
 
         if (data.status === 'OK') {
-          data.videos.forEach((video) => {
+          data.randomVideos.forEach((video) => {
             const videoItem = document.createElement('div');
             videoItem.classList.add('video-item');
-            
-            {{!-- videoItem.innerHTML = `
-                <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}"> 
-                <div class="video-details">
-                  <h2>${video.title}</h2>
-                  <p>${video.description}</p>
-                  <a href="/play/${video.id}">Watch Video</a>
-                </div>
-              `; --}}
 
             videoItem.addEventListener('click', () => {
-              console.log("video clicked on");
               window.location.href = `/play/${video.id}`;
             });
 
             videoItem.innerHTML = `
-              <h3>${video.title}</h3>
-              <img class="thumbnail" src="${video.thumbnail}" alt="${video.title}"> 
-              <p>${video.description}</p>
+              <h3>${video.video.title}</h3>
+              <img class="thumbnail" src="${video.video.thumbnail}" alt="${video.video.title}"> 
+              <p>${video.video.description}</p>
             `;
 
             videoList.appendChild(videoItem);
@@ -124,7 +116,7 @@
     }
 
     // Infinite scrolling logic to load more videos when the user scrolls to the bottom
-    window.addEventListener('scroll', () => {
+    {{!-- window.addEventListener('scroll', () => {
       if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
         page++;
         const videoList = document.getElementById('video-list');
@@ -132,7 +124,7 @@
           fetchVideos(videoList); // Fetch the next page of videos
         }
       }
-    });
+    }); --}}
 
     // Add a default user for testing purposes
     function addDefaultUser() {

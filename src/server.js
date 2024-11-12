@@ -34,7 +34,7 @@ app.use("/api", Milestone2Router);
 app.use("/api/videos", VideoRouter);
 
 app.get("/play/:id", (req, res) => {
-  const videoId = req.params.id;
+  const videoId = req.params.id; 
   res.render("player", { videoId });
 });
 

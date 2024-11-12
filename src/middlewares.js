@@ -10,7 +10,10 @@ exports.isAuthenticated = function isAuthenticated(req, res, next) {
   }
 };
 
-exports.db = {};
+exports.db = {
+  users: {},
+  videos: {}
+};
 
 let videoId = 500;
 
