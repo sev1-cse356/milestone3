@@ -95,13 +95,21 @@ MileStone1Router.post("/check-auth", (req, res) => {
   return res.json({ isLoggedIn: true, userId: req.session.username });
 });
 
+function isNumeric(str) {
+  return !isNaN(str) && !isNaN(parseFloat(str));
+}
+
 MileStone1Router.get("/manifest/:id", isAuthenticated, (req, res) => {
   const videoId = req.params.id;
+  let manifestPath = path.join(__dirname, "../media", `${videoId}`);
+
+  if(isNumeric(videoId)){
+    manifestPath = path.join(__dirname, "../media", `${videoId}_padded_output.mpd`);
+  }
 
   // const manifestPath = path.join(__dirname, 'media', 'manifests', `${videoId}_manifest.mpd`);
-  const manifestPath = path.join(__dirname, "../media", `${videoId}`);
-  // console.log(`Manifest ID: ${videoId}`)
-  // console.log(`Looking for manifest at: ${manifestPath}`);
+  console.log(`Manifest ID: ${videoId}`)
+  console.log(`Looking for manifest at: ${manifestPath}`);
 
   if (fs.existsSync(manifestPath)) {
     res.sendFile(manifestPath);
