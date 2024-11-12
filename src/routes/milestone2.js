@@ -46,6 +46,8 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const entry = db.videos[id];
 
   console.table(entry)
+  console.log((value === true && entry.ups.has(req.session.email)))
+  console.log((value !== null && !value && entry.downs.has(req.session.email)))
   // Check if the user is performing the same action twice
 
   if (
@@ -53,6 +55,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
     (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
+    console.log("RETURNING ERROR")
     return res.json({
       status: "ERROR",
       error: true,
@@ -64,18 +67,21 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   let incr = 0;
 
   if (value) {
+    console.log("LIKE")
     incr = 1;
     entry.ups.add(req.session.email);
     entry.downs.delete(req.session.email);
     db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
+    console.log("DISLIKE")
     incr = -1;
     entry.downs.add(req.session.email);
     entry.ups.delete(req.session.email);
     db.users[req.session.email].liked.delete(id);
     // entry.nones.delete(req.session.username);
   } else {
+    console.log("UNSET")
     entry.ups.delete(req.session.email);
     entry.downs.delete(req.session.email);
     db.users[req.session.email].liked.delete(id);
@@ -83,7 +89,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   }
 
   entry.likes += incr;
-
+  console.log("OKAY")
   return res.json({ status: "OK", likes: entry.likes });
 });
 
