@@ -87,7 +87,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	if err := cmd.Wait(); err != nil {
-		fmt.Println("Error waiting for resize to finish:", err)
+		fmt.Println(data.Id, "Error waiting for resize to finish:", err)
 		return
 	}
 
@@ -106,7 +106,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	if err := tncmd.Wait(); err != nil {
-		fmt.Println("Error waiting for thumbnail to finish:", err)
+		fmt.Println(data.Id, "Error waiting for thumbnail to finish:", err)
 		return
 	}
 
@@ -157,7 +157,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	if err := splitCmd.Wait(); err != nil {
-		fmt.Println("Error waiting for split to finish:", err)
+		fmt.Println(data.Id, "Error waiting for split to finish:", err)
 		return
 	}
 
@@ -169,4 +169,3 @@ func process(rdb *redis.Client, data UploadRequest) {
 	duration := time.Now().Sub(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 }
-
