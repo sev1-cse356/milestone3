@@ -8,8 +8,4 @@ COPY package.json yarn.lock ./
 
 RUN yarn
 
-RUN yarn add compute-cosine-similarity
-
-COPY ./src ./
-
 CMD [ "yarn", "dev" ]
