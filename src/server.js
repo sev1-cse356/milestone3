@@ -24,10 +24,10 @@ app.use(
   })
 );
 
-app.use("*", (req, res, next) => {
-  res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
-  next();
-});
+// app.use("*", (req, res, next) => {
+//   res.set("X-CSE356", "66d0f3556424d34b6b77c48f");
+//   next();
+// });
 
 app.use("/api", MileStone1Router);
 app.use("/api", Milestone2Router);
