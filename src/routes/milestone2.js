@@ -108,7 +108,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 // TEST WITH
 // curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4File=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
 Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
-  const { author, title } = req.body;
+  const { author, title, description } = req.body;
 
   const newVidId = getAndIncrementId();
   console.log("before publish")
@@ -124,7 +124,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   db.videos[newVidId] = {
     author,
     title,
-    description: "random video description",
+    description: description,
     likes: 0,
     ups: new Set(),
     downs: new Set(),
