@@ -29,6 +29,7 @@ services:
     volumes:
       - /mnt/video-volume/lost+found:/usr/share/nginx/html/media
       - ./nginx:/etc/nginx/user_conf.d
+      - nginx_secrets:/etc/letsencrypt
     depends_on:
       - express
     
@@ -37,3 +38,6 @@ services:
       context: ./uploader
     volumes:
       - /mnt/video-volume/lost+found:/app/tmp
+
+volumes:
+  nginx_secrets:
