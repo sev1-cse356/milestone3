@@ -20,12 +20,15 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
 
   nginx:
-    image: nginx
+    image: jonasal/nginx-certbot
+    environment:
+      - CERTBOT_EMAIL=jiechenmc@gmail.com
     ports:
       - 80:80
+      - 443:443
     volumes:
-      - ./nginx:/etc/nginx/conf.d
       - /mnt/video-volume/lost+found:/usr/share/nginx/html/media
+      - ./nginx:/etc/nginx/user_conf.d
     depends_on:
       - express
     
