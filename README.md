@@ -17,10 +17,10 @@ Include everything from the previous two milestones plus the additional 3 functi
 
 2. POST /api/videos {videoId, count} (augments /api/videos from previous milestone)
 
-Return information about videos similar to the video with the specified ${videoId}. 
+Return information about videos similar to the video with the specified `${videoId}`. 
 Use a collaborative filtering algorithm to identify videos that are similar to the video specified by the videoId. Two videos are considered similar if a similar group of users liked the video. If no id is specified, then fallback to user recommendations like in the previous assignment. 
 For an example and to aid in visualization, imagine a row of user_ids and a column of video_ids, and a binary value in each column for either a like or dislike. We can say two videos are similar if their corresponding column vector of the 2d matrix are similar. What similar means is going to be something you have to decide. 
-Response format: {videos: [{id: String, description: string, title: string, watched: boolean, liked: boolean|null, likevalues: Number }]}, where videos contain ${count} number of videos. Watched field = true if the user has watched the video, false otherwise. The liked field should follow the same format as /api/like, true if liked, false if disliked and null otherwise.
+Response format: {videos: [{id: String, description: string, title: string, watched: boolean, liked: boolean|null, likevalues: Number }]}, where videos contain `${count}` number of videos. Watched field = true if the user has watched the video, false otherwise. The liked field should follow the same format as /api/like, true if liked, false if disliked and null otherwise.
 
 3. POST /api/upload { author, title, description, mp4File}
 Upload a video to the site with title: title and author: author, description: description and mp4file: is the mp4 file.
