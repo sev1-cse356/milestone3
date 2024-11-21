@@ -133,3 +133,4 @@ dist
 src/media/*.mpd
 src/media/*.m4s
 src/media
+*.mp4

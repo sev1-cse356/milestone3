@@ -80,7 +80,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		paddedFileName, // Output file
 	)
 
-	cmd.Stderr = os.Stdout
+	// cmd.Stderr = os.Stdout
 
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Error starting the resize process:", err)
@@ -117,29 +117,14 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-y",                 // Overwrite output files without asking
 		"-i", paddedFileName, // Input video file
 		"-map", "0:v", // Map video streams from input
-		"-b:v:0", "254k", // Set bitrate for first output stream
-		"-s:v:0", "320x180", // Set size for first output stream
+		"-b:v:0", "512k", // Set bitrate for first output stream
+		"-s:v:0", "640x360", // Set size for first output stream
 		"-map", "0:v", // Map video streams from input
-		"-b:v:1", "507k", // Set bitrate for second output stream
-		"-s:v:1", "320x180", // Set size for second output stream
+		"-b:v:1", "768k", // Set bitrate for second output stream
+		"-s:v:1", "960x540", // Set size for second output stream
 		"-map", "0:v", // Map video streams from input
-		"-b:v:2", "759k", // Set bitrate for third output stream
-		"-s:v:2", "480x270", // Set size for third output stream
-		"-map", "0:v", // Map video streams from input
-		"-b:v:3", "1013k", // Set bitrate for fourth output stream
-		"-s:v:3", "640x360", // Set size for fourth output stream
-		"-map", "0:v", // Map video streams from input
-		"-b:v:4", "1254k", // Set bitrate for fifth output stream
-		"-s:v:4", "640x360", // Set size for fifth output stream
-		"-map", "0:v", // Map video streams from input
-		"-b:v:5", "1883k", // Set bitrate for sixth output stream
-		"-s:v:5", "768x432", // Set size for sixth output stream
-		"-map", "0:v", // Map video streams from input
-		"-b:v:6", "3134k", // Set bitrate for seventh output stream
-		"-s:v:6", "1024x576", // Set size for seventh output stream
-		"-map", "0:v", // Map video streams from input
-		"-b:v:7", "4952k", // Set bitrate for eighth output stream
-		"-s:v:7", "1280x720", // Set size for eighth output stream
+		"-b:v:2", "1024k", // Set bitrate for third output stream
+		"-s:v:2", "1280x720", // Set size for third output stream
 		"-f", "dash", // Set format to DASH
 		"-seg_duration", "10", // Set segment duration
 		"-use_template", "1", // Use template for segment names
