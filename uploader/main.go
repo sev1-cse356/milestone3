@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
@@ -18,6 +19,7 @@ type UploadRequest struct {
 }
 
 var ctx = context.Background()
+var sem = make(chan int, runtime.NumCPU())
 
 func main() {
 	// resize -> generate -> thumbnail
@@ -45,7 +47,7 @@ func main() {
 		json.Unmarshal([]byte(msg.Payload), &data)
 
 		go process(rdb, data)
-
+		sem <- 1
 	}
 }
 
@@ -154,4 +156,5 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 	duration := time.Now().Sub(startTime)
 	fmt.Println(data.Id, "DONE", duration)
+	<-sem
 }
