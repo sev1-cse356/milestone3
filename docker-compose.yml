@@ -5,6 +5,8 @@ services:
     volumes:
       - ./src:/app/src
       - /mnt/video-volume/lost+found:/app/src/media
+    env_file:
+      - .env
     depends_on:
       - redis
   redis:
@@ -36,6 +38,8 @@ services:
   uploader:
     build:
       context: ./uploader
+    env_file:
+      - .env
     volumes:
       - /mnt/video-volume/lost+found:/app/tmp
 

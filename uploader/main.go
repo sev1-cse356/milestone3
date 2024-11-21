@@ -26,7 +26,7 @@ func main() {
 
 	fmt.Println("Uploader :3")
 	rdb := redis.NewClient(&redis.Options{
-		Addr:        "redis:6379",
+		Addr:        os.Getenv("REDIS_URL"),
 		Password:    "66d0f3556424d34b6b77c48f", // no password set
 		DB:          0,                          // use default DB
 		ReadTimeout: -1,

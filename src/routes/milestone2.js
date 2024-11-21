@@ -7,7 +7,7 @@ const Milestone2Router = Router();
 const { createClient } = require("redis");
 const cosineSimilarity = require("compute-cosine-similarity");
 
-const redisClient = createClient({ url: "redis://redis:6379" });
+const redisClient = createClient({ url: process.env.REDIS_URL });
 const subscriber = redisClient.duplicate();
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
