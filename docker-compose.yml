@@ -9,8 +9,6 @@ services:
       resources:
         reservations:
           memory: 5G
-    env_file:
-      - .env
 
   redis:
     image: redis
@@ -41,8 +39,8 @@ services:
   uploader:
     build:
       context: ./uploader
-    env_file:
-      - .env
+    # env_file:
+    #   - .env
     volumes:
       - /mnt/video-volume/lost+found:/app/tmp
 
