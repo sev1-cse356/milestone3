@@ -45,11 +45,11 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 
   const entry = db.videos[id];
 
-  console.table(entry)
-  console.log(entry.ups)
-  console.log(req.session.email)
-  console.log((value === true && entry.ups.has(req.session.email)))
-  console.log((value !== null && !value && entry.downs.has(req.session.email)))
+  // console.table(entry)
+  // console.log(entry.ups)
+  // console.log(req.session.email)
+  // console.log((value === true && entry.ups.has(req.session.email)))
+  // console.log((value !== null && !value && entry.downs.has(req.session.email)))
   // Check if the user is performing the same action twice
 
   if (

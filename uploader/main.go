@@ -61,6 +61,11 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 	defer file.Close() // Ensure the file is closed when done
 
+	if _, err := file.Write([]byte(data.File)); err != nil {
+		fmt.Printf("Error writing to file: %v\n", err)
+		return
+	}
+
 	paddedFileName := fmt.Sprintf("./tmp/%d_padded.mp4", data.Id)
 
 	fmt.Printf("Processing: %v\n", paddedFileName)

@@ -29,5 +29,5 @@ const data = {
   mp4File: http.file(binFile, 'ms3.mp4'),
 };
 
-http.post('https://doitand711gang.cse356.compas.cs.stonybrook.edu/api/upload', data);
+http.post('https://sev-1.cse356.compas.cs.stonybrook.edu/api/upload', data);
 }
