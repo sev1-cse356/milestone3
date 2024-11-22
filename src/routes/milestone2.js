@@ -1,23 +1,29 @@
 const { Router } = require("express");
 const multer = require("multer");
-const { db, isAuthenticated, getAndIncrementId, getId } = require("../middlewares");
+const {
+  db,
+  isAuthenticated,
+  getAndIncrementId,
+  getId,
+} = require("../middlewares");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, '/app/src/media')
+    cb(null, "/app/src/media");
   },
   filename: function (req, file, cb) {
-    cb(null, `${getAndIncrementId()}.mp4` )
-  }
-})
+    cb(null, `${getAndIncrementId()}.mp4`);
+  },
+});
 
-
-const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 const Milestone2Router = Router();
 const { createClient } = require("redis");
 const cosineSimilarity = require("compute-cosine-similarity");
 
-const redisClient = createClient({ url: `redis://${process.env.REDIS_URL || "redis:6379"}` });
+const redisClient = createClient({
+  url: `redis://${process.env.REDIS_URL || "redis:6379"}`,
+});
 const subscriber = redisClient.duplicate();
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
@@ -38,8 +44,8 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const { id, value } = req.body;
 
-  console.log('/like')
-  console.table(req.body)
+  console.log("/like");
+  console.table(req.body);
 
   if (!(id in db.videos)) {
     db.videos[id] = {
@@ -67,7 +73,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
     (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
-    console.log("RETURNING ERROR")
+    console.log("RETURNING ERROR");
     return res.json({
       status: "ERROR",
       error: true,
@@ -79,30 +85,30 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   let incr = 0;
 
   if (value) {
-    console.log("LIKE")
+    console.log("LIKE");
     incr = 1;
     entry.ups.add(req.session.email);
     entry.downs.delete(req.session.email);
     db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
-    console.log("DISLIKE")
+    console.log("DISLIKE");
     incr = -1;
     entry.downs.add(req.session.email);
     entry.ups.delete(req.session.email);
     db.users[req.session.email].liked.delete(id);
     // entry.nones.delete(req.session.username);
   } else {
-    console.log("UNSET")
+    console.log("UNSET");
 
     if (entry.ups.has(req.session.email)) {
       entry.ups.delete(req.session.email);
-      incr = -1
+      incr = -1;
     }
 
     if (entry.downs.has(req.session.email)) {
       entry.downs.delete(req.session.email);
-      incr = 1
+      incr = 1;
     }
 
     db.users[req.session.email].liked.delete(id);
@@ -110,7 +116,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   }
 
   entry.likes += incr;
-  console.log("OKAY")
+  console.log("OKAY");
   return res.json({ status: "OK", likes: entry.likes });
 });
 
@@ -133,11 +139,11 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     nones: new Set(),
     status: "processing",
   };
-  res.json({ status: "OK", id: newVidId })
+  res.json({ status: "OK", id: newVidId });
 
   // console.log("PUBLISH TO", "upload" + newVidId % 2)
   redisClient.publish(
-    "upload" ,
+    "upload",
     JSON.stringify({
       id: newVidId,
       file: req.file.filename,
@@ -149,7 +155,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
 
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {
   const { id } = req.body;
-  
+
   if (db.users[req.session.email].viewed.has(id)) {
     return res.json({ status: "OK", viewed: true });
   } else {
@@ -169,7 +175,6 @@ Milestone2Router.post("/view", isAuthenticated, (req, res) => {
 Milestone2Router.get("/processing-status", (req, res) => {
   let start = 500;
   console.log("/api/processing-status");
-
   const videos = [];
   while (start.toString() in db.videos) {
     const entry = db.videos[start];
