@@ -80,7 +80,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		paddedFileName, // Output file
 	)
 
-	cmd.Stderr = os.Stdout
+	// cmd.Stderr = os.Stdout
 
 	if err := cmd.Start(); err != nil {
 		fmt.Println("Error starting the resize process:", err)
