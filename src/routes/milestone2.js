@@ -7,7 +7,7 @@ const Milestone2Router = Router();
 const { createClient } = require("redis");
 const cosineSimilarity = require("compute-cosine-similarity");
 
-const redisClient = createClient({ url: `redis://${process.env.REDIS_URL}` });
+const redisClient = createClient({ url: `redis://${process.env.REDIS_URL || "redis:6379"}` });
 const subscriber = redisClient.duplicate();
 
 redisClient.on("error", (err) => console.error("Redis Client Error", err));
@@ -113,11 +113,12 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const newVidId = getAndIncrementId();
   console.log("PUBLISH TO", "upload" + newVidId % 2)
   // console.log("before publish")
+  print(req.file.destination)
   redisClient.publish(
-    "upload" + newVidId % 2,
+    "upload0" ,
     JSON.stringify({
       id: newVidId,
-      file: req.file.buffer.toString("base64"),
+      file: req.file.destination,
       filename: req.file.originalname,
     })
   );
