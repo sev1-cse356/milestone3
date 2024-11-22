@@ -41,9 +41,11 @@ fs.readFile(
   }
 );
 
-//TODO:3.
 VideoRouter.post("/", (req, res) => {
-  const { count } = req.body;
+  const { videoId, count } = req.body;
+  
+  console.log("/api/videos")
+  console.log(videoId)
   const slicedVideos = videos.slice(0, count);
 
   res.json({
