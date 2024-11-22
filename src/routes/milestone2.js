@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     cb(null, "/app/src/media");
   },
   filename: function (req, file, cb) {
-    cb(null, `${getAndIncrementId()}.mp4`);
+    cb(null, `${getId()}.mp4`);
   },
 });
 
@@ -45,19 +45,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   const { id, value } = req.body;
 
   console.log("/like");
-  console.table(req.body);
-
-  if (!(id in db.videos)) {
-    db.videos[id] = {
-      author: "",
-      title: id,
-      description: "some random description",
-      likes: 0,
-      ups: new Set(),
-      downs: new Set(),
-      usersViewed: new Set(),
-    };
-  }
+  // console.table(req.body);
 
   const entry = db.videos[id];
 
@@ -116,7 +104,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   }
 
   entry.likes += incr;
-  console.log("OKAY");
+  // console.log("OKAY");
   return res.json({ status: "OK", likes: entry.likes });
 });
 
@@ -125,7 +113,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const { author, title, description } = req.body;
 
-  const newVidId = getId();
+  const newVidId = getAndIncrementId();
   // console.log("before publish")
 
   // console.log("after publish")
@@ -175,14 +163,17 @@ Milestone2Router.post("/view", isAuthenticated, (req, res) => {
 Milestone2Router.get("/processing-status", (req, res) => {
   let start = 500;
   console.log("/api/processing-status");
+  // console.log(db.videos)
   const videos = [];
+  console.log(req.session.username)
   while (start.toString() in db.videos) {
     const entry = db.videos[start];
-    videos.push({ id: start, title: entry.title, status: entry.status });
+    console.log(entry["author"])
+    if (entry["author"] == req.session.username)
+      videos.push({ id: start, title: entry.title, status: entry.status });
     start++;
   }
-  console.log(videos);
-  return res.json({ status: "OK", videos: videos });
+  return res.json({ status: "OK", videos: videos});
 });
 
 Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
