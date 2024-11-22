@@ -118,7 +118,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     "upload" ,
     JSON.stringify({
       id: newVidId,
-      file: req.file.destination,
+      file: req.file.buffer.toString("base64"),
       filename: req.file.originalname,
     })
   );
