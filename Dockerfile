@@ -10,4 +10,4 @@ RUN yarn
 
 COPY ./src ./
 
-CMD [ "yarn", "dev" ]
+CMD [ "yarn", "start" ]
