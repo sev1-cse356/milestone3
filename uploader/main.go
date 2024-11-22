@@ -32,7 +32,7 @@ func main() {
 		ReadTimeout: -1,
 	})
 
-	pubsub := rdb.Subscribe(ctx, "upload")
+	pubsub := rdb.Subscribe(ctx, os.Getenv("UPLOAD_QUEUE"))
 	defer pubsub.Close()
 
 	for {
