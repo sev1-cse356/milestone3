@@ -2,7 +2,7 @@ FROM node:20
 
 WORKDIR /app 
 
-RUN yarn global add nodemon
+# RUN yarn global add nodemon
 
 COPY package.json yarn.lock ./
 
