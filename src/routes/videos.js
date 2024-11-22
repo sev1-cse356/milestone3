@@ -4,48 +4,48 @@ const path = require("path");
 const VideoRouter = Router();
 const { db } = require("../middlewares");
 
-fs.readFile(
-  path.join(__dirname, "../media", "m2.json"),
-  "utf8",
-  (err, data) => {
-    if (err) {
-      console.error("Error reading m2.json:", err);
-      return;
-    }
+// fs.readFile(
+//   path.join(__dirname, "../media", "m2.json"),
+//   "utf8",
+//   (err, data) => {
+//     if (err) {
+//       console.error("Error reading m2.json:", err);
+//       return;
+//     }
 
-    try {
-      const jsonData = JSON.parse(data);
+//     try {
+//       const jsonData = JSON.parse(data);
 
-      const videos = Object.entries(jsonData).map(([id, description]) => ({
-        author: "default",
-        title: id.replace(".mp4", ""),
-        description: description || "random video description",
-        likes: 0,
-        ups: new Set(),
-        downs: new Set(),
-        usersViewed: new Set(),
-        status: "complete",
-      }));
+//       const videos = Object.entries(jsonData).map(([id, description]) => ({
+//         author: "default",
+//         title: id.replace(".mp4", ""),
+//         description: description || "random video description",
+//         likes: 0,
+//         ups: new Set(),
+//         downs: new Set(),
+//         usersViewed: new Set(),
+//         status: "complete",
+//       }));
 
-      videos.forEach((video, index) => {
-        const videoId = Object.keys(jsonData)[index].replace(".mp4", "");
-        db.videos[videoId] = video;
-      });
+//       videos.forEach((video, index) => {
+//         const videoId = Object.keys(jsonData)[index].replace(".mp4", "");
+//         db.videos[videoId] = video;
+//       });
 
-      console.log(
-        `${videos.length} videos were loaded and inserted into the db`
-      );
-    } catch (parseError) {
-      console.error("Error parsing m2.json:", parseError);
-    }
-  }
-);
+//       console.log(
+//         `${videos.length} videos were loaded and inserted into the db`
+//       );
+//     } catch (parseError) {
+//       console.error("Error parsing m2.json:", parseError);
+//     }
+//   }
+// );
 
 VideoRouter.post("/", (req, res) => {
   const { videoId, count } = req.body;
-  
-  console.log("/api/videos")
-  console.log(videoId)
+
+  console.log("/api/videos");
+  console.log(videoId);
   const slicedVideos = videos.slice(0, count);
 
   res.json({
