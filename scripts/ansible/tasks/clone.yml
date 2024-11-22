@@ -1,0 +1,11 @@
+- name: Cloning Milestone3
+  ansible.builtin.git:
+    repo: https://github.com/sev1-cse356/milestone3.git
+    dest: "{{ project_dir }}"
+    single_branch: yes
+    version: main
+
+- name: "copy .env"
+  ansible.builtin.copy:
+    src: ~/milestone3/.env
+    dest: "{{ project_dir }}"
