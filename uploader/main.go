@@ -24,7 +24,7 @@ var sem = make(chan int, runtime.NumCPU())
 func main() {
 	// resize -> generate -> thumbnail
 
-	fmt.Println("Uploader :3")
+	fmt.Printf("Subscribing to: %s", os.Getenv("UPLOAD_QUEUE"))
 	rdb := redis.NewClient(&redis.Options{
 		Addr:        os.Getenv("REDIS_URL"),
 		Password:    "66d0f3556424d34b6b77c48f", // no password set
