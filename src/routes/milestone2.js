@@ -113,14 +113,14 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const newVidId = getAndIncrementId();
   // console.log("before publish")
   redisClient.publish(
-    "upload",
+    "upload" + newVidId % 2,
     JSON.stringify({
       id: newVidId,
       file: req.file.buffer.toString("base64"),
       filename: req.file.originalname,
     })
   );
-  console.log("after publish")
+  // console.log("after publish")
   db.videos[newVidId] = {
     author,
     title,
