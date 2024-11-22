@@ -20,5 +20,8 @@ let videoId = 500;
 exports.getAndIncrementId = () => {
   return videoId++;
 };
+exports.getId = () => {
+  return videoId;
+};
 
 // DB LOOKS LIKE

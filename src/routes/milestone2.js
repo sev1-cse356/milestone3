@@ -1,8 +1,18 @@
 const { Router } = require("express");
 const multer = require("multer");
-const { db, isAuthenticated, getAndIncrementId } = require("../middlewares");
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const { db, isAuthenticated, getAndIncrementId, getId } = require("../middlewares");
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, '/app/src/media')
+  },
+  filename: function (req, file, cb) {
+    cb(null, `${getAndIncrementId()}.mp4` )
+  }
+})
+
+
+const upload = multer({storage: storage});
 const Milestone2Router = Router();
 const { createClient } = require("redis");
 const cosineSimilarity = require("compute-cosine-similarity");
@@ -109,7 +119,7 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
 Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const { author, title, description } = req.body;
 
-  const newVidId = getAndIncrementId();
+  const newVidId = getId();
   // console.log("before publish")
 
   // console.log("after publish")
@@ -130,8 +140,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     "upload" ,
     JSON.stringify({
       id: newVidId,
-      file: req.file.buffer.toString("base64"),
-      filename: req.file.originalname,
+      file: req.file.filename,
     })
   );
   // console.log(req.file);

@@ -2,9 +2,9 @@ import http from 'k6/http';
 
 export const options = {
   // A number specifying the number of VUs to run concurrently.
-  vus: 1,
+  vus: 10,
   // A string specifying the total duration of the test run.
-  duration: '300s',
+  duration: '30s',
 
 };
 
@@ -29,5 +29,5 @@ const data = {
   mp4File: http.file(binFile, 'ms3.mp4'),
 };
 
-http.post('https://sev-1.cse356.compas.cs.stonybrook.edu/api/upload', data);
+http.post('http://localhost/api/upload', data);
 }

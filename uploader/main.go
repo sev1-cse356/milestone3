@@ -6,19 +6,19 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
 )
 
 type UploadRequest struct {
-	Id       int    `json:"id"`
-	File     []byte `json:"file"`
-	Filename string `json:"filename"`
+	Id   int    `json:"id"`
+	File string `json:"file"`
 }
 
 var ctx = context.Background()
-var sem = make(chan int, 2)
+var sem = make(chan int, runtime.NumCPU()/4)
 
 func main() {
 	// resize -> generate -> thumbnail
@@ -53,28 +53,18 @@ func main() {
 func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	startTime := time.Now()
-	file, err := os.Create(fmt.Sprintf("input-%d.mp4", data.Id))
-
-	if err != nil {
-		fmt.Printf("Error creating file: %v\n", err)
-		return
-	}
-	defer file.Close() // Ensure the file is closed when done
-
-	if _, err := file.Write([]byte(data.File)); err != nil {
-		fmt.Printf("Error writing to file: %v\n", err)
-		return
-	}
 
 	paddedFileName := fmt.Sprintf("./tmp/%d_padded.mp4", data.Id)
+	inputFile := fmt.Sprintf("./tmp/%s", data.File)
+	manifestFile := fmt.Sprintf("./tmp/%d_padded_output.mpd", data.Id)
 
-	fmt.Printf("Processing: %v\n", paddedFileName)
+	fmt.Printf("Processing: %v\n", inputFile)
 
 	cmd := exec.Command(
 		"ffmpeg",
 		"-y",        // Overwrite output files
 		"-f", "mp4", // Input format; change as needed based on your data
-		"-i", fmt.Sprintf("input-%d.mp4", data.Id),
+		"-i", inputFile,
 		"-vf", `scale=w=iw*min(1280/iw\,720/ih):h=ih*min(1280/iw\,720/ih),pad=1280:720:(1280-iw*min(1280/iw\,720/ih))/2:(720-ih*min(1280/iw\,720/ih))/2`, // Video filter
 		"-c:a", "copy", // Copy audio codec
 		paddedFileName, // Output file
@@ -132,7 +122,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-init_seg_name", fmt.Sprintf(`%d_padded_chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
 		"-media_seg_name", fmt.Sprintf(`%d_padded_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, data.Id), // Media segment name
 		"-adaptation_sets", "id=0,streams=v", // Adaptation sets
-		fmt.Sprintf("./tmp/%d_padded_output.mpd", data.Id), // Output DASH manifest file
+		manifestFile, // Output DASH manifest file
 	)
 
 	// splitCmd.Stderr = os.Stdout
@@ -148,11 +138,12 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	// After all 3 operations are complete, send the path through the notify channel
-	err = rdb.Publish(ctx, "notify", data.Id).Err()
+	err := rdb.Publish(ctx, "notify", data.Id).Err()
 	if err != nil {
 		panic(err)
 	}
-	duration := time.Now().Sub(startTime)
+
+	duration := time.Since(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 	<-sem
 }
