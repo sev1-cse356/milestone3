@@ -32,29 +32,25 @@
       transition: background-color 0.3s;
     }
 
-    .video-details {
-      flex: 1;
-    }
-
     .video-item h3 {
       font-size: 1.2rem;
       margin: 5px 0;
       padding-bottom: 10px;
-      white-space: nowrap;       
-      overflow: hidden;        
-      text-overflow: ellipsis;  
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .video-item p {
       font-size: 1rem;
       margin: 5px 0;
       padding-top: 10px;
-      display: -webkit-box;           
-      -webkit-line-clamp: 3;         
-      -webkit-box-orient: vertical;    
-      overflow: hidden;           
-      text-overflow: ellipsis;       
-      white-space: normal;      
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: normal;
     }
 
     .video-item:hover {
@@ -67,35 +63,64 @@
       margin: 10px 0;
     }
   </style>
-
   <script>
-    let page = 1; // Start with the first page
+    let currentVideoIndex = 0; // Track the currently visible video
+    let debounceTimeout; // Timeout for debouncing scroll events
+    const videos = []; // To hold references to video elements
 
-    // Ensure the DOM is fully loaded before accessing elements
     document.addEventListener('DOMContentLoaded', () => {
       const videoList = document.getElementById('video-list');
 
       if (videoList) {
-        fetchVideos(videoList); // Fetch the first page of videos
+        fetchVideos(videoList).then(() => {
+          // Fetch all video elements after loading
+          videos.push(...document.querySelectorAll('.video-item'));
+
+          // Scroll to the first video if available
+          if (videos.length > 0) {
+            scrollToVideo(videos[currentVideoIndex]);
+          }
+        });
       } else {
         console.error('Video list element not found!');
       }
 
-      document.getElementById("loginForm").addEventListener("submit", (e)=>{
-      e.preventDefault()
-      const fd = new FormData(e.target)
-      const username = fd.get("username")
-      const password = fd.get("password")
+      // Listen for scroll events to enable smooth scrolling
+      document.addEventListener('wheel', (event) => {
+        event.preventDefault(); // Stop normal scroll behavior
 
-      login(username, password)
-    })
+        // Debounce to prevent rapid scrolling issues
+        if (debounceTimeout) clearTimeout(debounceTimeout);
+
+        debounceTimeout = setTimeout(() => {
+          if (event.deltaY > 0 && currentVideoIndex < videos.length - 1) {
+            // Scroll down
+            currentVideoIndex++;
+          } else if (event.deltaY < 0 && currentVideoIndex > 0) {
+            // Scroll up
+            currentVideoIndex--;
+          }
+
+          // Scroll to the selected video
+          scrollToVideo(videos[currentVideoIndex]);
+        }, 100); // Adjust debounce timeout if needed
+      });
+
+      // Attach event listener to the login form
+      document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        const username = fd.get('username');
+        const password = fd.get('password');
+
+        login(username, password);
+      });
     });
 
-    // Fetch videos from the server and append them to the list
+    // Fetch videos from the server and append them to the video list
     async function fetchVideos(videoList) {
       const count = 10;
       try {
-        {{!-- const response = await fetch(`/api/videos/${page}`); --}}
         const response = await fetch(`/api/videos/homepage/${count}`);
         const data = await response.json();
 
@@ -103,14 +128,15 @@
           data.randomVideos.forEach((video) => {
             const videoItem = document.createElement('div');
             videoItem.classList.add('video-item');
-            
+            videoItem.setAttribute('data-id', video.id);
+
             videoItem.onclick = () => {
               window.location.href = `/play/${video.id}`;
             };
 
             videoItem.innerHTML = `
               <h3>${video.video.title}</h3>
-              <img class="thumbnail" src="/api/thumbnail/${video.id}" alt="${video.video.title}"> 
+              <img class="thumbnail" src="/api/thumbnail/${video.id}" alt="${video.video.title}">
               <p>${video.video.description}</p>
             `;
 
@@ -124,49 +150,55 @@
       }
     }
 
-    // Infinite scrolling logic to load more videos when the user scrolls to the bottom
-    {{!-- window.addEventListener('scroll', () => {
-      if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
-        page++;
-        const videoList = document.getElementById('video-list');
-        if (videoList) {
-          fetchVideos(videoList); // Fetch the next page of videos
-        }
-      }
-    }); --}}
+    // Scroll to a specific video
+    function scrollToVideo(videoElement) {
+      if (!videoElement) return;
+
+      const rect = videoElement.getBoundingClientRect();
+      const offsetTop = rect.top + window.scrollY;
+
+      // Scroll smoothly to the video
+      window.scrollTo({
+        top: offsetTop,
+        behavior: 'smooth',
+      });
+
+      // Update the URL with the video ID
+      const videoId = videoElement.getAttribute('data-id');
+      history.replaceState(null, '', `/play/${videoId}`);
+    }
 
     // Add a default user for testing purposes
     function addDefaultUser() {
-      fetch("/api/adduser", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      fetch('/api/adduser', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: "admin",
-          password: "abc123",
-          email: "admin@356.com",
+          username: 'admin',
+          password: 'abc123',
+          email: 'admin@356.com',
         }),
       }).then(() => {
-        fetch("/api/verify?email=admin@356.com&key=somerandomstring");
+        fetch('/api/verify?email=admin@356.com&key=somerandomstring');
       });
     }
 
     // Login function
     function login(username, password) {
-      fetch("/api/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: username || "admin", password: password || "abc123" }),
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: username || 'admin', password: password || 'abc123' }),
       }).then(() => {
         window.location.reload();
       });
     }
 
-
     // Logout function
     function logout() {
-      fetch("/api/logout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      fetch('/api/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       }).then(() => {
         window.location.reload();
       });
@@ -185,14 +217,13 @@
   <div>
     <button onclick="addDefaultUser()">Add Default User</button>
     <pre>The default credentials: { "username": "admin", "password": "abc123", "email": "admin@356.com" }</pre>
-
     <button onclick="login()">Login As Default User</button>
   </div>
   <form id="loginForm">
     <label>Username</label>
-    <input name="username"></input>
+    <input name="username" />
     <label>Password</label>
-    <input name="password"></input>
+    <input name="password" />
     <button type="submit">Login</button>
   </form>
   {{/if}}
