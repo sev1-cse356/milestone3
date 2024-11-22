@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
-	"runtime"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
@@ -19,7 +18,7 @@ type UploadRequest struct {
 }
 
 var ctx = context.Background()
-var sem = make(chan int, runtime.NumCPU())
+var sem = make(chan int, 2)
 
 func main() {
 	// resize -> generate -> thumbnail

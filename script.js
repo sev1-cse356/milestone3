@@ -25,6 +25,7 @@ export default function() {
 const data = {
   author: 'this is a standard form field',
   title: "TEST",
+  description: "YEET",
   mp4File: http.file(binFile, 'ms3.mp4'),
 };
 
