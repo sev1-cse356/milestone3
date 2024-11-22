@@ -19,7 +19,7 @@
     state: latest
     update_cache: true
 
-- name: Add 'ubuntu' to docker group
+- name: Add 'root' to docker group
   user:
     name: root
     groups: docker
