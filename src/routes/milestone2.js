@@ -104,23 +104,14 @@ Milestone2Router.post("/like", isAuthenticated, (req, res) => {
   return res.json({ status: "OK", likes: entry.likes });
 });
 
-//TODO: 4. ONLY ACCEPTS FORMDATA
 // TEST WITH
 // curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4File=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
 Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const { author, title, description } = req.body;
 
   const newVidId = getAndIncrementId();
-  console.log("PUBLISH TO", "upload" + newVidId % 2)
   // console.log("before publish")
-  redisClient.publish(
-    "upload" ,
-    JSON.stringify({
-      id: newVidId,
-      file: req.file.buffer.toString("base64"),
-      filename: req.file.originalname,
-    })
-  );
+
   // console.log("after publish")
   db.videos[newVidId] = {
     author,
@@ -132,8 +123,19 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     nones: new Set(),
     status: "processing",
   };
+  res.json({ status: "OK", id: newVidId })
+
+  // console.log("PUBLISH TO", "upload" + newVidId % 2)
+  redisClient.publish(
+    "upload" ,
+    JSON.stringify({
+      id: newVidId,
+      file: req.file.buffer.toString("base64"),
+      filename: req.file.originalname,
+    })
+  );
   // console.log(req.file);
-  return res.json({ status: "OK", id: newVidId });
+  // return res.json({ status: "OK", id: newVidId });
 });
 
 Milestone2Router.post("/view", isAuthenticated, (req, res) => {
