@@ -265,8 +265,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
     similarityScores.sort((a, b) => b.similarity - a.similarity);
     for (const { user: similarUser } of similarityScores) {
-      console.log("looking for: ", similarUser)
-      const otherUser = await getOnefromDb("users", {_id: similarUser})
+      const otherUser = await getOnefromDb("users", {_id: similarUser._id})
       const otherLikes = otherUser.liked;
       for (const vid of otherLikes) {
         if (!user.viewed.includes(id)) {
