@@ -1,11 +1,9 @@
 const express = require("express");
-const path = require("path");
 const session = require("express-session");
 const { engine } = require("express-handlebars");
 const MileStone1Router = require("./routes/milestone1");
 const Milestone2Router = require("./routes/milestone2");
 const VideoRouter = require("./routes/videos");
-const { isAuthenticated } = require("./middlewares");
 
 const app = express();
 app.engine("handlebars", engine());
@@ -38,7 +36,7 @@ app.get("/play/:id", (req, res) => {
   res.render("player", { videoId });
 });
 
-app.get("/", (req, res) => {
+app.get("/",async (req, res) => {
   return res.render("home", {
     data: {
       username: req.session.username,

@@ -15,7 +15,7 @@ exports.db = {
   videos: {}
 };
 
-let videoId = 500;
+let videoId = Date.now();
 
 exports.getAndIncrementId = () => {
   return videoId++;

@@ -1,21 +1,28 @@
 const { Router } = require("express");
-const { isAuthenticated, db } = require("../middlewares");
+const { isAuthenticated, db} = require("../middlewares");
 const path = require("path");
 const fs = require("fs");
 const MileStone1Router = Router();
 const { sendVerificationEmail } = require("../mailer");
+const { getAllfromDb, insertToDb, updateToDb } = require("../db");
 
 MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   console.log("/adduser");
+
+  const users = await getAllfromDb("users", {email})
   // console.table(req.body);
-  if (email in db.users)
+
+  console.log(users)
+
+  if (users.length)
     return res.json({
       status: "ERROR",
       error: true,
       message: "DUPLICATE",
     });
-  db.users[email] = { username, password, email, disabled: true, viewed: new Set(), liked: new Set() };
+
+  insertToDb("users",  {_id: email, username, password, disabled: true, viewed: [], liked: [] })
 
   // console.log("DB STATE AFTER ADDING USER", email);
   // console.table(db);
@@ -28,7 +35,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
   return res.json({ status: "OK" });
 });
 
-MileStone1Router.get("/verify", (req, res) => {
+MileStone1Router.get("/verify", async (req, res) => {
   const { email, key } = req.query;
   console.log("/api/verify");
   // console.log("DB STATE");
@@ -41,7 +48,7 @@ MileStone1Router.get("/verify", (req, res) => {
 
   try {
     if (key) {
-      db.users[encodedEmail].disabled = false;
+      updateToDb("users", {_id: encodedEmail}, { $set: { "disabled": false } })
       return res.json({ status: "OK" });
     }
   } catch {
@@ -53,28 +60,21 @@ MileStone1Router.get("/verify", (req, res) => {
   }
 });
 
-MileStone1Router.post("/login", (req, res) => {
+MileStone1Router.post("/login", async (req, res) => {
   const { username, password } = req.body;
-
-  Object.keys(db.users).forEach((e) => {
-    const entry = db.users[e];
-    if (
-      entry.username === username &&
-      entry.password === password &&
-      !entry.disabled
-    ) {
-      req.session.username = username;
-      req.session.email = e;
-      return res.json({ status: "OK" });
-    }
-  });
-
-  if (!res.headersSent)
+  const user = await getAllfromDb("users", {"username": username})
+  if(user && password === user[0].password){
+    req.session.username = username;
+    req.session.email = user[0]._id;
+    return res.json({ status: "OK" });
+  } else{
     return res.json({
       status: "ERROR",
       error: true,
       message: "Invalid username or password",
     });
+  }
+    
 });
 
 MileStone1Router.post("/logout", (req, res) => {
