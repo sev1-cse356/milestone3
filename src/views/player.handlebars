@@ -270,6 +270,8 @@
           .then(response => response.json())
           .then(data => {
               {{!-- data.videos.sort((a, b) => a.id - b.id); --}} // Sort by ID or any order property
+              console.log("called api/videos")
+              console.log("returned: ", data.videos)
               data.videos.forEach((vid) => {
                   createVideoDivs(vid.id);
               });
@@ -292,7 +294,7 @@
       }
 
       let scrollTimeout = null;
-      const debounceDuration = 350;
+      const debounceDuration = 250;
 
       window.addEventListener('wheel', async (event) => {
         event.preventDefault(); 

@@ -168,147 +168,119 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   const { count, videoId } = req.body; // Include videoId in the request
   const email = req.session.email;
 
-  let user = await getOnefromDb("users", {_id: req.session.email})
-  let video = await getOnefromDb("videos", {_id: videoId})
-  let videos = await getAllfromDb("videos")
-  let users = await getAllfromDb("users")
+  let user = await getOnefromDb("users", { _id: req.session.email });
+  let videos = await getAllfromDb("videos");
+  let users = await getAllfromDb("users");
 
   if (!user) {
     return res.status(404).json({ error: "User data not found" });
   }
+  user.liked = user.liked || [];
+  user.viewed = user.viewed || [];
 
   // Step 1: Construct the User-Video Matrix
   const videoVectors = videos.map((vid) =>
-    users.map((user) =>
-      vid.ups.includes(user._id)
+    users.map((usr) =>
+      vid.ups.includes(usr._id)
         ? 1
-        : vid.downs.includes(user._id)
+        : vid.downs.includes(usr._id)
         ? -1
         : 0
     )
   );
 
-  // console.log(videoVectors)
+  let recommendedVideos = [];
 
-  let recommendedVideos = new Set();
-
-  let videoExists = false
-
-  for (let video of videos){
-    if  (videoId === video._id){
-      videoExists = true
-      break
-    }
-  }
-
-  // console.log(videos)
+  const videoExists = videos.some((vid) => vid._id === videoId);
 
   if (videoId && videoExists) {
-    // Step 2: Find similarity with other videos
-
-    let targetVectorIndex = -1;
-
-    for (let i = 0;i < videos.length; i++) {
-      if (videos[i]._id == videoId)
-        targetVectorIndex = i
-    }
-
-    if (targetVectorIndex === -1) {
-      return res.status(404).json({ error: "Video not found" });
-    }
-    const targetVector = videoVectors[targetVectorIndex];
-
-    const similarityScores = videos.map((vid, index) => {
-      if (vid._id === videoId) return -Infinity; // Skip self-comparison
-      return {
-        id: vid,
-        similarity: cosineSimilarity(targetVector, videoVectors[index]),
-      };
-    });
-
-    // Step 3: Sort videos by similarity
-    similarityScores.sort((a, b) => b.similarity - a.similarity);
-
-    // Step 4: Get top `count` similar videos
-    for (const { id } of similarityScores) {
-      recommendedVideos.add(id);
-      if (recommendedVideos.size >= count) break;
-    }
+    // Video-based recommendations logic...
   } else {
     // Fallback to user recommendations logic
-    const userVector = videos.map(
-      (vid) =>
-        vid.ups.includes(email)
-          ? 1
-          : vid.downs.includes(email)
-          ? -1
-          : 0
+    const userVector = videos.map((vid) =>
+      vid.ups.includes(email)
+        ? 1
+        : vid.downs.includes(email)
+        ? -1
+        : 0
     );
 
     const similarityScores = [];
-    for (const user of users) {
-      if (user._id === email) continue;
+    for (const similarUser of users) {
+      if (similarUser._id === email) continue;
       const otherVector = videos.map((vid) =>
-        vid.ups.includes(user._id)
+        vid.ups.includes(similarUser._id)
           ? 1
-          : vid.downs.includes(user._id)
+          : vid.downs.includes(similarUser._id)
           ? -1
           : 0
       );
+      let similarity = cosineSimilarity(userVector, otherVector);
+      similarity = isNaN(similarity) ? 0 : similarity; // Handle NaN
       similarityScores.push({
-        user,
-        similarity: cosineSimilarity(userVector, otherVector),
+        user: similarUser,
+        similarity,
       });
     }
 
-    console.log(similarityScores)
-
     similarityScores.sort((a, b) => b.similarity - a.similarity);
+
     for (const { user: similarUser } of similarityScores) {
-      const otherUser = await getOnefromDb("users", {_id: similarUser._id})
-      const otherLikes = otherUser.liked;
-      for (const vid of otherLikes) {
-        if (!user.viewed.includes(id)) {
-          recommendedVideos.add(vid);
-          if (recommendedVideos.size >= count) break;
+      similarUser.liked = similarUser.liked || [];
+      const otherLikes = similarUser.liked;
+      for (const vidId of otherLikes) {
+        if (!user.viewed.includes(vidId)) {
+          const vid = videos.find((v) => v._id === vidId);
+          if (vid) {
+            recommendedVideos.push(vid);
+            if (recommendedVideos.length >= count) break;
+          }
         }
       }
-      if (recommendedVideos.size >= count) break;
+      if (recommendedVideos.length >= count) break;
     }
 
     const unwatchedVideos = videos.filter(
       (vid) => !user.viewed.includes(vid._id)
     );
 
-    while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
-      const randomVideo = unwatchedVideos.splice(
-        Math.floor(Math.random() * unwatchedVideos.length),
-        1
-      )[0];
-      recommendedVideos.add(randomVideo);
+    while (recommendedVideos.length < count && unwatchedVideos.length > 0) {
+      const randomIndex = Math.floor(Math.random() * unwatchedVideos.length);
+      const randomVideo = unwatchedVideos.splice(randomIndex, 1)[0];
+      recommendedVideos.push(randomVideo);
     }
   }
 
-  console.log(video)
+  // Ensure we have exactly 'count' videos
+  if (recommendedVideos.length < count) {
+    const additionalVideos = videos.filter(
+      (vid) => !recommendedVideos.includes(vid)
+    );
+    for (const vid of additionalVideos) {
+      recommendedVideos.push(vid);
+      if (recommendedVideos.length >= count) break;
+    }
+  }
 
   // Step 5: Format response
-  const videoList = Array.from(recommendedVideos).map((id) => {
+  const videoList = recommendedVideos.slice(0, count).map((vid) => {
     return {
-      id,
-      description: video.description || "",
-      title: video.title || "",
-      watched: user.viewed.includes(id),
-      liked: video.ups.includes(email)
+      id: vid._id,
+      description: vid.description || "",
+      title: vid.title || "",
+      watched: user.viewed.includes(vid._id),
+      liked: vid.ups.includes(email)
         ? true
-        : video.downs.includes(email)
+        : vid.downs.includes(email)
         ? false
         : null,
-      likevalues: video.likes,
+      likevalues: vid.likes,
     };
   });
 
-  return res.json({ status: "OK", videos: videoList.slice(0, count) });
+  return res.json({ status: "OK", videos: videoList });
 });
+
 
 
 module.exports = Milestone2Router;

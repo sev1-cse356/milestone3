@@ -29,7 +29,6 @@ const getOne = async (collection, filter={}) => {
     return res[0] 
 }
 
-
 const update = async (collection, filter={}, expr={}) => {
     const toCol = db.collection(collection)
     const res = await toCol.updateOne(filter, expr)

@@ -98,6 +98,8 @@
         const response = await fetch(`/api/videos/homepage/${count}`);
         const data = await response.json();
 
+        console.log(data)
+        
         if (data.status === 'OK') {
           data.randomVideos.forEach((video) => {
             const videoItem = document.createElement('div');
@@ -109,9 +111,9 @@
             };
 
             videoItem.innerHTML = `
-              <h3>${video.video.title}</h3>
-              <img class="thumbnail" src="/api/thumbnail/${video.id}" alt="${video.video.title}">
-              <p>${video.video.description}</p>
+              <h3>${video.title}</h3>
+              <img class="thumbnail" src="/api/thumbnail/${video._id}" alt="${video.title}">
+              <p>${video.description}</p>
             `;
 
             videoList.appendChild(videoItem);

@@ -1,45 +1,20 @@
 const { Router } = require("express");
-const fs = require("fs");
-const path = require("path");
 const VideoRouter = Router();
-const { db } = require("../middlewares");
+const { getAllfromDb, insertToDb, updateToDb, getOnefromDb } = require("../db");
 
-// fs.readFile(
-//   path.join(__dirname, "../media", "m2.json"),
-//   "utf8",
-//   (err, data) => {
-//     if (err) {
-//       console.error("Error reading m2.json:", err);
-//       return;
-//     }
+VideoRouter.get("/homepage/:count", async (req, res) => {
+  const count = req.params.count;
+  const videos = await getAllfromDb('videos');
 
-//     try {
-//       const jsonData = JSON.parse(data);
+  for (let i = count * 2; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [videos[i], videos[j]] = [videos[j], videos[i]];
+  }
 
-//       const videos = Object.entries(jsonData).map(([id, description]) => ({
-//         author: "default",
-//         title: id.replace(".mp4", ""),
-//         description: description || "random video description",
-//         likes: 0,
-//         ups: new Set(),
-//         downs: new Set(),
-//         usersViewed: new Set(),
-//         status: "complete",
-//       }));
+  const randomVideos = videos.slice(0, count);
 
-//       videos.forEach((video, index) => {
-//         const videoId = Object.keys(jsonData)[index].replace(".mp4", "");
-//         db.videos[videoId] = video;
-//       });
-
-//       console.log(
-//         `${videos.length} videos were loaded and inserted into the db`
-//       );
-//     } catch (parseError) {
-//       console.error("Error parsing m2.json:", parseError);
-//     }
-//   }
-// );
+  return res.json({ status: "OK", randomVideos: randomVideos });
+});
 
 VideoRouter.post("/", (req, res) => {
   const { videoId, count } = req.body;
@@ -78,22 +53,6 @@ VideoRouter.get("/prev", (req, res) => {
   }
 });
 
-VideoRouter.get("/homepage/:count", (req, res) => {
-  const count = req.params.count;
-  const videoIds = Object.keys(db.videos);
-
-  for (let i = videoIds.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [videoIds[i], videoIds[j]] = [videoIds[j], videoIds[i]];
-  }
-
-  const randomVideos = videoIds.slice(0, count).map((vidId) => {
-    return { id: vidId, video: db.videos[vidId] };
-  });
-
-  return res.json({ status: "OK", randomVideos: randomVideos });
-});
-
 // VideoRouter.get("/:page", (req, res) => {
 //   const page = parseInt(req.params.page) || 1;
 //   const pageSize = 10; // Number of videos per page
@@ -112,34 +71,6 @@ VideoRouter.get("/homepage/:count", (req, res) => {
 //   res.json({
 //     status: "OK",
 //     videos: paginatedVideos,
-//   });
-// });
-
-// VideoRouter.get("/next/:id", (req, res) => {
-//   const currentVideoId = req.params.id;
-//   const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
-
-//   // Calculate the next index
-//   const nextIndex = (currentIndex + 1) % videos.length;
-//   const nextVideoId = videos[nextIndex].id;
-
-//   res.json({
-//     status: "OK",
-//     videoId: nextVideoId,
-//   });
-// });
-
-// VideoRouter.get("/prev/:id", (req, res) => {
-//   const currentVideoId = req.params.id;
-//   const currentIndex = videos.findIndex((video) => video.id === currentVideoId);
-
-//   // Calculate the previous index
-//   const prevIndex = (currentIndex - 1 + videos.length) % videos.length;
-//   const prevVideoId = videos[prevIndex].id;
-
-//   res.json({
-//     status: "OK",
-//     videoId: prevVideoId,
 //   });
 // });
 
