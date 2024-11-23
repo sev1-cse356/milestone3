@@ -141,12 +141,13 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	// After all 3 operations are complete, update MongoDB record
-	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017/cse356"))
+	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017"))
 	collection := client.Database("cse356").Collection("videos")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	fmt.Println(data.Id)
+
 	filter := bson.D{{"_id", data.Id}}
 	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
 	res, _ := collection.UpdateOne(ctx, filter, update)
