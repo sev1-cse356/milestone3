@@ -99,20 +99,20 @@
         const data = await response.json();
 
         console.log(data)
-        
+
         if (data.status === 'OK') {
           data.randomVideos.forEach((video) => {
             const videoItem = document.createElement('div');
             videoItem.classList.add('video-item');
-            videoItem.setAttribute('data-id', video.id);
+            videoItem.setAttribute('data-id', video.title);
 
             videoItem.onclick = () => {
-              window.location.href = `/play/${video.id}`;
+              window.location.href = `/play/${video.title}`;
             };
 
             videoItem.innerHTML = `
               <h3>${video.title}</h3>
-              <img class="thumbnail" src="/api/thumbnail/${video._id}" alt="${video.title}">
+              <img class="thumbnail" src="/api/thumbnail/${video.title}" alt="${video.title}">
               <p>${video.description}</p>
             `;
 

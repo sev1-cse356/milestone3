@@ -269,11 +269,10 @@
           })
           .then(response => response.json())
           .then(data => {
-              {{!-- data.videos.sort((a, b) => a.id - b.id); --}} // Sort by ID or any order property
               console.log("called api/videos")
-              console.log("returned: ", data.videos)
+              console.log("returned: ", data)
               data.videos.forEach((vid) => {
-                  createVideoDivs(vid.id);
+                  createVideoDivs(vid.title);
               });
           })
           .catch(error => console.error(`Error getting recommended videos: ${error}`));
@@ -314,7 +313,7 @@
           }
         
         history.pushState(null, '', `/play/${watchHistory[historyIndex].videoId}`);
-
+        
         const videoElement = document.getElementById(watchHistory[historyIndex].videoId);
 
         if (videoElement) {

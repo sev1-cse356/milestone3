@@ -18,9 +18,6 @@ VideoRouter.get("/homepage/:count", async (req, res) => {
 
 VideoRouter.post("/", (req, res) => {
   const { videoId, count } = req.body;
-
-  console.log("/api/videos");
-  console.log(videoId);
   const slicedVideos = videos.slice(0, count);
 
   res.json({

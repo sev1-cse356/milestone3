@@ -2,6 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const { insertToDb } = require("./db");
 
+let vidId = 0
 fs.readFile(
   path.join(__dirname, "./media", "m2.json"),
   "utf8",
@@ -15,7 +16,7 @@ fs.readFile(
       const jsonData = JSON.parse(data);
 
       const videos = Object.entries(jsonData).map(([id, description]) => ({
-        _id: id.replace(".mp4", ""),
+        _id: vidId++,
         author: "default",
         title: id.replace(".mp4", ""),
         description: description || "random video description",
