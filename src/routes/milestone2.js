@@ -174,51 +174,6 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     return res.status(404).json({ error: "User data not found" });
   }
 
-<<<<<<< HEAD
-  const videos = await getAllfromDb("videos") // Assume each entry in `db` has a unique video ID
-  const recommendedVideos = new Set();
-
-    // Step 1: Prepare the list of all video IDs and the user's preference vector
-
-    const userVector = videos.map(
-      (video) =>
-        // db[username].ups.has(videoId) ? 1 : // Liked
-        // db[username].downs.has(videoId) ? -1 : // Disliked
-        email in video.ups
-          ? 1
-          : email in video.downs
-          ? -1
-          : 0 // No interaction
-    );
-
-    console.log("User Vector")
-    console.log(userVector)
-
-    // Step 2: Calculate similarity with other users using the `compute-cosine-similarity` library
-    const similarityScores = [];
-    const users = await getAllfromDb("users") 
-    users.forEach((user) => {
-      const otherEmail = user._id
-      if (otherEmail !== email) {
-        const otherUserVector = videos.map((video) =>{
-          console.log(video)
-          return otherEmail in video.ups
-          ? 1
-          : otherEmail in video.downs
-          ? -1
-          : 0
-        }
-        );
-
-        const similarity = cosineSimilarity(userVector, otherUserVector);
-        similarityScores.push({ user: otherEmail, similarity: similarity });
-      }
-    });
-
-    console.log(similarityScores)
-
-    // Step 3: Sort users by similarity in descending order
-=======
   const videoIds = Object.keys(db.videos); // Get all video IDs
   const userIds = Object.keys(db.users); // Get all user IDs
 
@@ -252,7 +207,6 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     });
 
     // Step 3: Sort videos by similarity
->>>>>>> 79d713b (rec)
     similarityScores.sort((a, b) => b.similarity - a.similarity);
 
     // Step 4: Get top `count` similar videos
@@ -299,10 +253,6 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       if (recommendedVideos.size >= count) break;
     }
 
-<<<<<<< HEAD
-
-  // END
-=======
     const unwatchedVideos = videoIds.filter(
       (vid) => !db.users[email].viewed.has(vid)
     );
@@ -314,7 +264,6 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       recommendedVideos.add(randomVideo);
     }
   }
->>>>>>> 79d713b (rec)
 
   // Step 5: Format response
   const videoList = Array.from(recommendedVideos).map((id) => {

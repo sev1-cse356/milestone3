@@ -10,7 +10,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
   const { username, password, email } = req.body;
   console.log("/adduser");
 
-  const users = await getAllfromDb("users", {email})
+  const users = await getAllfromDb("users", {_id: email})
   // console.table(req.body);
 
   console.log(users)
