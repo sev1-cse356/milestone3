@@ -169,37 +169,57 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   const email = req.session.email;
 
   let user = await getOnefromDb("users", {_id: req.session.email})
+  let video = await getOnefromDb("videos", {_id: videoId})
+  let videos = await getAllfromDb("videos")
+  let users = await getAllfromDb("users")
 
   if (!user) {
     return res.status(404).json({ error: "User data not found" });
   }
 
-  const videoIds = Object.keys(db.videos); // Get all video IDs
-  const userIds = Object.keys(db.users); // Get all user IDs
-
   // Step 1: Construct the User-Video Matrix
-  const videoVectors = videoIds.map((vid) =>
-    userIds.map((user) =>
-      db.videos[vid].ups.has(user)
+  const videoVectors = videos.map((vid) =>
+    users.map((user) =>
+      vid.ups.includes(user._id)
         ? 1
-        : db.videos[vid].downs.has(user)
+        : vid.downs.includes(user._id)
         ? -1
         : 0
     )
   );
 
+  // console.log(videoVectors)
+
   let recommendedVideos = new Set();
 
-  if (videoId && videoId in db.videos) {
+  let videoExists = false
+
+  for (let video of videos){
+    if  (videoId === video._id){
+      videoExists = true
+      break
+    }
+  }
+
+  // console.log(videos)
+
+  if (videoId && videoExists) {
     // Step 2: Find similarity with other videos
-    const targetVectorIndex = videoIds.indexOf(videoId);
+
+    let targetVectorIndex = -1;
+
+    for (let i = 0;i < videos.length; i++) {
+      if (videos[i]._id == videoId)
+        targetVectorIndex = i
+    }
+
     if (targetVectorIndex === -1) {
       return res.status(404).json({ error: "Video not found" });
     }
     const targetVector = videoVectors[targetVectorIndex];
 
-    const similarityScores = videoIds.map((vid, index) => {
-      if (vid === videoId) return -Infinity; // Skip self-comparison
+    const similarityScores = videos.map((vid, index) => {
+      if (vid._id === videoId) return -Infinity; // Skip self-comparison
       return {
         id: vid,
         similarity: cosineSimilarity(targetVector, videoVectors[index]),
@@ -216,22 +236,22 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     }
   } else {
     // Fallback to user recommendations logic
-    const userVector = videoIds.map(
+    const userVector = videos.map(
       (vid) =>
-        db.videos[vid].ups.has(email)
+        vid.ups.includes(email)
           ? 1
-          : db.videos[vid].downs.has(email)
+          : vid.downs.includes(email)
           ? -1
           : 0
     );
 
     const similarityScores = [];
-    for (const user of userIds) {
-      if (user === email) continue;
-      const otherVector = videoIds.map((vid) =>
-        db.videos[vid].ups.has(user)
+    for (const user of users) {
+      if (user._id === email) continue;
+      const otherVector = videos.map((vid) =>
+        vid.ups.includes(user._id)
           ? 1
-          : db.videos[vid].downs.has(user)
+          : vid.downs.includes(user._id)
           ? -1
           : 0
       );
@@ -241,11 +261,14 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       });
     }
 
+
     similarityScores.sort((a, b) => b.similarity - a.similarity);
     for (const { user: similarUser } of similarityScores) {
-      const otherLikes = db.users[similarUser].liked;
+
+      const otherUser = await getOnefromDb("users", {_id: similarUser})
+      const otherLikes = otherUser.liked;
       for (const vid of otherLikes) {
-        if (!db.users[email].viewed.has(vid)) {
+        if (!user.viewed.includes(id)) {
           recommendedVideos.add(vid);
           if (recommendedVideos.size >= count) break;
         }
@@ -253,9 +276,10 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       if (recommendedVideos.size >= count) break;
     }
 
-    const unwatchedVideos = videoIds.filter(
-      (vid) => !db.users[email].viewed.has(vid)
+    const unwatchedVideos = videos.filter(
+      (vid) => !user.viewed.includes(vid._id)
     );
+
     while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
       const randomVideo = unwatchedVideos.splice(
         Math.floor(Math.random() * unwatchedVideos.length),
@@ -265,17 +289,18 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     }
   }
 
+  console.log(video)
+
   // Step 5: Format response
   const videoList = Array.from(recommendedVideos).map((id) => {
-    const video = db.videos[id];
     return {
       id,
       description: video.description || "",
       title: video.title || "",
-      watched: db.users[email].viewed.has(id),
-      liked: video.ups.has(email)
+      watched: user.viewed.includes(id),
+      liked: video.ups.includes(email)
         ? true
-        : video.downs.has(email)
+        : video.downs.includes(email)
         ? false
         : null,
       likevalues: video.likes,
