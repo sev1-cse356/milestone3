@@ -3,11 +3,7 @@ const multer = require("multer");
 const cosineSimilarity = require("compute-cosine-similarity");
 const { getAllfromDb, insertToDb, updateToDb, getOnefromDb } = require("../db");
 const { createClient } = require("redis");
-const {
-  isAuthenticated,
-  getAndIncrementId,
-  getId,
-} = require("../middlewares");
+const { isAuthenticated, getAndIncrementId, getId } = require("../middlewares");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -18,7 +14,9 @@ const storage = multer.diskStorage({
   },
 });
 
-const redisClient = createClient({ url: `redis://${process.env.REDIS_URL || "redis:6379"}` });
+const redisClient = createClient({
+  url: `redis://${process.env.REDIS_URL || "redis:6379"}`,
+});
 const upload = multer({ storage: storage });
 const Milestone2Router = Router();
 
@@ -29,16 +27,15 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
   await redisClient.connect();
 })();
 
-
 Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   const { id, value } = req.body;
 
   console.log("/like");
   // console.table(req.body);
-  const _id = parseInt(id)
-  let entry = await getOnefromDb("videos", {_id});
-  entry.ups = new Set(entry.ups)
-  entry.downs = new Set(entry.downs)
+  const _id = parseInt(id);
+  let entry = await getOnefromDb("videos", { _id });
+  entry.ups = new Set(entry.ups);
+  entry.downs = new Set(entry.downs);
   // console.table(entry)
   // console.log(entry.ups)
   // console.log(req.session.email)
@@ -46,9 +43,9 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   // console.log((value !== null && !value && entry.downs.has(req.session.email)))
   // Check if the user is performing the same action twice
   // console.log(entry)
-  
+
   if (
-    (value === true &&  entry.ups.has(req.session.email)) ||
+    (value === true && entry.ups.has(req.session.email)) ||
     (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
@@ -66,36 +63,36 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   if (value) {
     console.log("LIKE");
     incr = 1;
-    updateToDb("videos", {_id}, {$push: {ups: req.session.email}}) // entry.ups.add(req.session.email);
-    updateToDb("videos", {_id}, {$pull: {downs: req.session.email}}) // entry.downs.delete(req.session.email);
-    updateToDb("users", {_id: req.session.email}, {$push: {liked: id}}) // db.users[req.session.email].liked.add(id);
+    updateToDb("videos", { _id }, { $push: { ups: req.session.email } }); // entry.ups.add(req.session.email);
+    updateToDb("videos", { _id }, { $pull: { downs: req.session.email } }); // entry.downs.delete(req.session.email);
+    updateToDb("users", { _id: req.session.email }, { $push: { liked: id } }); // db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
     console.log("DISLIKE");
     incr = -1;
-    updateToDb("videos", {_id}, {$push: {downs: req.session.email}}) 
-    updateToDb("videos", {_id}, {$pull: {ups: req.session.email}})
-    updateToDb("users", {_id: req.session.email}, {$pull: {liked: id}}) // db.users[req.session.email].liked.delete(id);
+    updateToDb("videos", { _id }, { $push: { downs: req.session.email } });
+    updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
+    updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
     // entry.nones.delete(req.session.username);
   } else {
     console.log("UNSET");
 
     if (entry.ups.has(req.session.email)) {
-      updateToDb("videos", {_id}, {$pull: {ups: req.session.email}})
+      updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
       incr = -1;
     }
 
     if (entry.downs.has(req.session.email)) {
-      updateToDb("videos", {_id}, {$pull: {downs: req.session.email}})
+      updateToDb("videos", { _id }, { $pull: { downs: req.session.email } });
       incr = 1;
     }
 
-    updateToDb("users", {_id: req.session.email}, {$pull: {liked: id}}) // db.users[req.session.email].liked.delete(id);
+    updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
   }
 
-  updateToDb("videos", {_id}, {$inc: {likes: incr}})
+  updateToDb("videos", { _id }, { $inc: { likes: incr } });
   // console.log("OKAY");
-  return res.json({ status: "OK", likes: entry.likes + incr});
+  return res.json({ status: "OK", likes: entry.likes + incr });
 });
 
 // TEST WITH
@@ -106,7 +103,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   const newVidId = getAndIncrementId();
   // console.log("before publish")
 
-  insertToDb("videos",  {
+  insertToDb("videos", {
     _id: newVidId,
     author,
     title,
@@ -115,7 +112,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
     ups: [],
     downs: [],
     status: "processing",
-  })
+  });
   res.json({ status: "OK", id: newVidId });
 
   // console.log("PUBLISH TO", "upload" + newVidId % 2)
@@ -132,18 +129,18 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
 
 Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
   const { id } = req.body;
-  const _id = parseInt(id)
+  const _id = parseInt(id);
 
-  let user = await getOnefromDb("users", {_id: req.session.email})
+  let user = await getOnefromDb("users", { _id: req.session.email });
 
-  user.viewed = new Set(user.viewed)
-  user.liked = new Set(user.liked)
+  user.viewed = new Set(user.viewed);
+  user.liked = new Set(user.liked);
 
-  console.log(user)
+  console.log(user);
   if (user.viewed.has(_id)) {
     return res.json({ status: "OK", viewed: true });
   } else {
-    updateToDb("users", {_id: req.session.email}, {$push: {viewed: _id}}) 
+    updateToDb("users", { _id: req.session.email }, { $push: { viewed: _id } });
     return res.json({ status: "OK", viewed: false });
   }
 
@@ -158,9 +155,11 @@ Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
 Milestone2Router.get("/processing-status", async (req, res) => {
   console.log("/api/processing-status");
   // console.log(db.videos)
-  const videos = await getAllfromDb("videos", {author: req.session.username})
-  const ret = videos.map(e=> { return {id: e._id, title: e.title, status: e.status} })
-  return res.json({ status: "OK", videos: ret});
+  const videos = await getAllfromDb("videos", { author: req.session.username });
+  const ret = videos.map((e) => {
+    return { id: e._id, title: e.title, status: e.status };
+  });
+  return res.json({ status: "OK", videos: ret });
 });
 
 // Add this route towards the end, before exporting the router
@@ -181,11 +180,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   // Step 1: Construct the User-Video Matrix
   const videoVectors = videos.map((vid) =>
     users.map((usr) =>
-      vid.ups.includes(usr._id)
-        ? 1
-        : vid.downs.includes(usr._id)
-        ? -1
-        : 0
+      vid.ups.includes(usr._id) ? 1 : vid.downs.includes(usr._id) ? -1 : 0
     )
   );
 
@@ -195,14 +190,37 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
   if (videoId && videoExists) {
     // Video-based recommendations logic...
+    let targetVectorIndex = -1;
+
+    for (let i = 0; i < videos.length; i++) {
+      if (videos[i]._id == videoId) targetVectorIndex = i;
+    }
+
+    if (targetVectorIndex === -1) {
+      return res.status(404).json({ error: "Video not found" });
+    }
+    const targetVector = videoVectors[targetVectorIndex];
+
+    const similarityScores = videos.map((vid, index) => {
+      if (vid._id === videoId) return -Infinity; // Skip self-comparison
+      return {
+        id: vid,
+        similarity: cosineSimilarity(targetVector, videoVectors[index]),
+      };
+    });
+
+    // Step 3: Sort videos by similarity
+    similarityScores.sort((a, b) => b.similarity - a.similarity);
+
+    // Step 4: Get top `count` similar videos
+    for (const { id } of similarityScores) {
+      recommendedVideos.add(id);
+      if (recommendedVideos.size >= count) break;
+    }
   } else {
     // Fallback to user recommendations logic
     const userVector = videos.map((vid) =>
-      vid.ups.includes(email)
-        ? 1
-        : vid.downs.includes(email)
-        ? -1
-        : 0
+      vid.ups.includes(email) ? 1 : vid.downs.includes(email) ? -1 : 0
     );
 
     const similarityScores = [];
@@ -280,7 +298,5 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
   return res.json({ status: "OK", videos: videoList });
 });
-
-
 
 module.exports = Milestone2Router;
