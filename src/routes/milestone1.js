@@ -44,12 +44,16 @@ MileStone1Router.get("/verify", async (req, res) => {
     .replace(/%20/g, "+")
     .replace(/%40/g, "@");
 
-  console.log(encodedEmail);
-
   try {
-    if (key) {
+    if (key && key === "somerandomstring") {
       updateToDb("users", {_id: encodedEmail}, { $set: { "disabled": false } })
       return res.json({ status: "OK" });
+    } else {
+      return res.json({
+        status: "ERROR",
+        error: true,
+        message: "Wrong Key",
+      });
     }
   } catch {
     return res.json({
