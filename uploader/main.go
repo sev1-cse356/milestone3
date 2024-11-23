@@ -146,12 +146,14 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
+	fmt.Println(data.Id)
 	filter := bson.D{{"_id", data.Id}}
 	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
 	res, _ := collection.UpdateOne(ctx, filter, update)
 
 	fmt.Println(res)
+	fmt.Println(filter)
+	fmt.Println(update)
 	duration := time.Since(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 	<-sem
