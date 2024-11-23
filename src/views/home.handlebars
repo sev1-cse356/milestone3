@@ -70,51 +70,25 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const videoList = document.getElementById('video-list');
-
+      
       if (videoList) {
-        fetchVideos(videoList).then(() => {
-          // Fetch all video elements after loading
-          videos.push(...document.querySelectorAll('.video-item'));
-
-          // Scroll to the first video if available
-          if (videos.length > 0) {
-            scrollToVideo(videos[currentVideoIndex]);
-          }
-        });
+        fetchVideos(videoList); // Fetch the first page of videos
       } else {
         console.error('Video list element not found!');
       }
 
-      // Listen for scroll events to enable smooth scrolling
-      document.addEventListener('wheel', (event) => {
-        event.preventDefault(); // Stop normal scroll behavior
-
-        // Debounce to prevent rapid scrolling issues
-        if (debounceTimeout) clearTimeout(debounceTimeout);
-
-        debounceTimeout = setTimeout(() => {
-          if (event.deltaY > 0 && currentVideoIndex < videos.length - 1) {
-            // Scroll down
-            currentVideoIndex++;
-          } else if (event.deltaY < 0 && currentVideoIndex > 0) {
-            // Scroll up
-            currentVideoIndex--;
-          }
-
-          // Scroll to the selected video
-          scrollToVideo(videos[currentVideoIndex]);
-        }, 100); // Adjust debounce timeout if needed
-      });
-
       // Attach event listener to the login form
-      document.getElementById('loginForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
-        const username = fd.get('username');
-        const password = fd.get('password');
+      form = document.getElementById('loginForm')
+      if (form) {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const fd = new FormData(e.target);
+          const username = fd.get('username');
+          const password = fd.get('password');
 
-        login(username, password);
-      });
+          login(username, password);
+        });
+      }
     });
 
     // Fetch videos from the server and append them to the video list
@@ -148,24 +122,6 @@
       } catch (error) {
         console.error('Error fetching videos:', error);
       }
-    }
-
-    // Scroll to a specific video
-    function scrollToVideo(videoElement) {
-      if (!videoElement) return;
-
-      const rect = videoElement.getBoundingClientRect();
-      const offsetTop = rect.top + window.scrollY;
-
-      // Scroll smoothly to the video
-      window.scrollTo({
-        top: offsetTop,
-        behavior: 'smooth',
-      });
-
-      // Update the URL with the video ID
-      const videoId = videoElement.getAttribute('data-id');
-      history.replaceState(null, '', `/play/${videoId}`);
     }
 
     // Add a default user for testing purposes

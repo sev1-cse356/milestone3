@@ -52,29 +52,31 @@
       #playPauseBtn button:hover {
         background-color: #a9a9a9;
       }
-.videoContainer {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    scroll-snap-type: y mandatory;  /* Ensures scroll snapping is active */
-    overflow-y: auto;               /* Enable scrolling */
-    height: 100vh;                  /* Full viewport height */
-    align-items: center;            /* Center items horizontally */
-    justify-content: flex-start;    /* Start items from the top */
-    scroll-behavior: smooth;        /* Smooth transition for scrolling */
-}
 
-.videoItem {
-    scroll-snap-align: center;      /* Snap video to the center */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: 100vh;                  /* Make each video take up full height */
-    margin: 0;
-    padding: 0;
-    position: relative;
-}
+      .videoContainer {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        {{!-- scroll-snap-type: y mandatory;  /* Ensures scroll snapping is active */ --}}
+        overflow-y: auto;               /* Enable scrolling */
+        height: 100vh;                  /* Full viewport height */
+        align-items: center;            /* Center items horizontally */
+        justify-content: flex-start;    /* Start items from the top */
+        scroll-behavior: smooth;        /* Smooth transition for scrolling */
+      }
+
+      .videoItem {
+        {{!-- scroll-snap-align: center;      /* Snap video to the center */ --}}
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100vh;                  /* Make each video take up full height */
+        margin: 0;
+        padding: 0;
+        position: relative;
+      }
+
       .buttonsContainer {
         display: flex;
         flex-direction: column;
@@ -146,15 +148,13 @@
       function observeVideo(videoElement, player) {
         const observer = new IntersectionObserver((entries, observer) => {
           entries.forEach(entry => {
+            const video = entry.target;
+            currentPlayer = player;
+
             if (entry.isIntersecting) {
-              const video = entry.target;
               const videoId = entry.target.id;
 
-              {{!-- history.pushState(null, '', `/play/${videoId}`); --}}
-
               video.play().catch(err => console.log('Autoplay failed: ', err));
-
-              currentPlayer = player;
 
               fetch('/api/view', {
                 method: 'POST',
@@ -165,18 +165,18 @@
                   id: videoId,
                 })
               })
-              .then(response => response.json())
+              {{!-- .then(response => response.json())
               .then(data => {
                   console.log(`Video ${videoId} already viewed? : ${data.viewed}`);
-              })
+              }) --}}
               .catch(error => console.error(`Error updating viewed on ${videoId}: ${error}`));
             } else {
-              const video = entry.target;
-              video.pause();
+              player.pause();
+              player.seek(0);
             }
           });
         }, {
-          threshold: 0.1
+          threshold: 0.25
         });
         observer.observe(videoElement, player);
       }
@@ -254,7 +254,9 @@
         player.initialize(videoElement, manifestUrl, false);
 
         watchHistory.push({ videoId: vidId, player: player });
-        {{!-- observeVideo(videoElement, player); --}}
+        currentPlayer = player;
+
+        observeVideo(videoElement, player);
       }
 
       function preloadVideos(count) {
@@ -267,7 +269,7 @@
           })
           .then(response => response.json())
           .then(data => {
-              data.videos.sort((a, b) => a.id - b.id); // Sort by ID or any order property
+              {{!-- data.videos.sort((a, b) => a.id - b.id); --}} // Sort by ID or any order property
               data.videos.forEach((vid) => {
                   createVideoDivs(vid.id);
               });
@@ -281,21 +283,19 @@
 
       playPauseBtn.onclick = () => {
         if (currentPlayer) {
-          if (currentPlayer.isPaused()) {
+          if (currentPlayer.paused) {
             currentPlayer.play();
-            {{!-- playPauseBtn.textContent = 'Pause'; --}}
           } else {
             currentPlayer.pause();
-            {{!-- playPauseBtn.textContent = 'Play'; --}}
           }
         }
       }
 
       let scrollTimeout = null;
-      const debounceDuration = 250;
+      const debounceDuration = 350;
 
       window.addEventListener('wheel', async (event) => {
-        {{!-- event.preventDefault();  --}}
+        event.preventDefault(); 
         if (scrollTimeout) return;
 
         scrollTimeout = setTimeout(() => {
@@ -316,28 +316,23 @@
         const videoElement = document.getElementById(watchHistory[historyIndex].videoId);
 
         if (videoElement) {
-          currentPlayer = watchHistory[historyIndex].player;
-
           // Scroll to the video element smoothly
-          {{!-- videoElement.scrollIntoView({ behavior: 'auto', block: 'center' }); --}}
-
-          // Optionally, you can also play the video if it's in view
-          videoElement.play().catch(err => console.log('Autoplay failed: ', err));
+          videoElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } 
         
         if (historyIndex === (watchHistory.length - 3)) {
           preloadVideos(8);
         }
-      });
+      }, { passive: false });
 
       // Load the initial video
       createVideoDivs(currentVideoId);
-      currentPlayer = watchHistory[0].player;
 
       // Preload possible video recommendations
       preloadVideos(8);
 
     </script>
+
     {{!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
         var url = 'http://sev-1.cse356.compas.cs.stonybrook.edu/play/5381274-uhd_4096_2160_30fps'; // Adjust to your server's address
@@ -357,5 +352,6 @@
         });
         });
     </script> --}}
+
   </body>
 </html>
