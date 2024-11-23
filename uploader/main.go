@@ -10,6 +10,9 @@ import (
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
+	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type UploadRequest struct {
@@ -137,12 +140,18 @@ func process(rdb *redis.Client, data UploadRequest) {
 		return
 	}
 
-	// After all 3 operations are complete, send the path through the notify channel
-	err := rdb.Publish(ctx, "notify", data.Id).Err()
-	if err != nil {
-		panic(err)
-	}
+	// After all 3 operations are complete, update MongoDB record
+	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017/cse356"))
+	collection := client.Database("cse356").Collection("videos")
 
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	filter := bson.D{{"_id", data.Id}}
+	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
+	res, _ := collection.UpdateOne(ctx, filter, update)
+
+	fmt.Println(res)
 	duration := time.Since(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 	<-sem
