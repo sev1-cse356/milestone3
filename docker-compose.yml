@@ -37,7 +37,12 @@ services:
       - nginx_secrets:/etc/letsencrypt
     depends_on:
       - express
-    
+  db:
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      
   uploader:
     build:
       context: ./uploader
