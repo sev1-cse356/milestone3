@@ -261,6 +261,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       });
     }
 
+    console.log(similarityScores)
 
     similarityScores.sort((a, b) => b.similarity - a.similarity);
     for (const { user: similarUser } of similarityScores) {
