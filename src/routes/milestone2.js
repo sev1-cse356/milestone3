@@ -32,7 +32,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
 
   console.log("/like");
   // console.table(req.body);
-  const _id = parseInt(id);
+  const _id = id;
   let entry = await getOnefromDb("videos", { _id });
   entry.ups = new Set(entry.ups);
   entry.downs = new Set(entry.downs);
@@ -104,7 +104,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
   // console.log("before publish")
 
   insertToDb("videos", {
-    _id: newVidId,
+    _id: newVidId.toString(),
     author,
     title,
     description: description,
@@ -129,7 +129,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
 
 Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
   const { id } = req.body;
-  const _id = parseInt(id);
+  const _id = id;
 
   let user = await getOnefromDb("users", { _id: req.session.email });
 
