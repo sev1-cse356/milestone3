@@ -182,11 +182,12 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   user.viewed = user.viewed || [];
 
   // Step 1: Construct the User-Video Matrix
-  const videoVectors = videos.map((vid) =>
-    users.map((usr) =>
+  const videoVectors = users.map((usr) =>
+    videos.map((vid) =>
       vid.ups.includes(usr._id) ? 1 : vid.downs.includes(usr._id) ? -1 : 0
     )
   );
+  
 
   console.table(videoVectors);
 
