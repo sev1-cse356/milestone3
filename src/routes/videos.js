@@ -18,16 +18,6 @@ VideoRouter.get("/homepage/:count", async (req, res) => {
   return res.json({ status: "OK", randomVideos: randomVideos });
 });
 
-VideoRouter.post("/", (req, res) => {
-  const { videoId, count } = req.body;
-  const slicedVideos = videos.slice(0, count);
-
-  res.json({
-    status: "OK",
-    videos: slicedVideos,
-  });
-});
-
 VideoRouter.get("/next", (req, res) => {
   req.session.historyIndex += 1;
   if (req.session.historyIndex === req.session.watchHistory.length - 2) {
