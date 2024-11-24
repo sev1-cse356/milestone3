@@ -32,7 +32,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
 
   // console.table(req.body);
   const _id = id;
-  
+  console.log("LIKING", _id)
   let entry = await getOnefromDb("videos", { _id });
   entry.ups = new Set(entry.ups);
   entry.downs = new Set(entry.downs);
