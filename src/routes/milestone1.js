@@ -7,13 +7,13 @@ const { sendVerificationEmail } = require("../mailer");
 const { getAllfromDb, insertToDb, updateToDb } = require("../db");
 
 MileStone1Router.post("/adduser", async (req, res) => {
-  const { username, password, email } = req.body;
   console.log("/adduser");
+  console.table(req.body)
+  const { username, password, email } = req.body;
+
 
   const users = await getAllfromDb("users", {_id: email})
   // console.table(req.body);
-
-  console.log(users)
 
   if (users.length)
     return res.json({
@@ -36,8 +36,8 @@ MileStone1Router.post("/adduser", async (req, res) => {
 });
 
 MileStone1Router.get("/verify", async (req, res) => {
-  const { email, key } = req.query;
   console.log("/api/verify");
+  const { email, key } = req.query;
   // console.log("DB STATE");
   // console.table(db);
   const encodedEmail = encodeURIComponent(email)
@@ -65,17 +65,17 @@ MileStone1Router.get("/verify", async (req, res) => {
 });
 
 MileStone1Router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
+  console.log("/api/login")
   console.table(req.body)
+  const { username, password } = req.body;
   const user = await getAllfromDb("users", {"username": username})
-
-  console.log(user[0] && password === user[0].password)
   if(user[0] && password === user[0].password){
     req.session.username = username;
     req.session.email = user[0]._id;
+    console.log("LOGIN SUCESSFUL")
     return res.json({ status: "OK" });
   } else{
+    console.log("LOGIN FAILED")
     return res.json({
       status: "ERROR",
       error: true,
