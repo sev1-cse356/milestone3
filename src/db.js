@@ -26,10 +26,10 @@ const insert = async (collection, data) => {
   const toCol = db.collection(collection);
   const res = await toCol.insertOne(data);
   // Invalidate Cache
-  console.log("Invalidateing", collection)
-  memcached.del(collection, (err, data) => {
-    console.log("DELETE", data)
-  });
+  // console.log("Invalidateing", collection)
+  // memcached.del(collection, (err, data) => {
+  //   console.log("DELETE", data)
+  // });
   return res.insertedId;
 };
 
@@ -45,39 +45,39 @@ function isEmpty(obj) {
 
 const getAll = async (collection, filter = {}) => {
   // Check Cache if the request wants ALL
-  let cacheResult = null
+  // let cacheResult = null
 
-  if(isEmpty(filter)){
-    cacheResult = await cacheGet(collection);
-  }
+  // if(isEmpty(filter)){
+  //   cacheResult = await cacheGet(collection);
+  // }
 
-  if (cacheResult && !isEmpty(cacheResult[collection])) {
-    console.log("getAll", JSON.parse(cacheResult[collection]).length)
-    return JSON.parse(cacheResult[collection]);
-  }
+  // if (cacheResult && !isEmpty(cacheResult[collection])) {
+  //   console.log("getAll", JSON.parse(cacheResult[collection]).length)
+  //   return JSON.parse(cacheResult[collection]);
+  // }
 
   console.log("getAll Cache Miss")
   // Find and Set Cache
   const toCol = db.collection(collection);
   const res = await toCol.find(filter);
   const data = await res.toArray()
-  memcached.set(`${collection}`, JSON.stringify(data), 6000, function (err) {});
+  // memcached.set(`${collection}`, JSON.stringify(data), 6000, function (err) {});
   return data;
 };
 
 const getOne = async (collection, filter = {}) => {
   // Check Cache
-  const key = `${filter._id}`
-  const cacheResult = await cacheGet(key);
+  // const key = `${filter._id}`
+  // const cacheResult = await cacheGet(key);
 
-  if (cacheResult !== undefined && !isEmpty(cacheResult[key])) {
-    return JSON.parse(cacheResult[key]);
-  }
+  // if (cacheResult !== undefined && !isEmpty(cacheResult[key])) {
+  //   return JSON.parse(cacheResult[key]);
+  // }
 
   // Find and Set Cache
   const res = await getAll(collection, filter);
   const data = res[0]
-  memcached.set(key, JSON.stringify(data === undefined ? [] : data), 6000, function (err) {});
+  // memcached.set(key, JSON.stringify(data === undefined ? [] : data), 6000, function (err) {});
   return data;
 };
 
@@ -87,10 +87,10 @@ const update = async (collection, filter = {}, expr = {}) => {
   await toCol.updateOne(filter, expr);
   const res = await getAll(collection, filter);
   //Invalidate Cache
-  console.log("Invalidating", collection)
-  console.log("Invalidating", `${collection}-${filter._id}`)
-  memcached.del(`${collection}-${filter._id}`);
-  memcached.del(collection);
+  // console.log("Invalidating", collection)
+  // console.log("Invalidating", `${collection}-${filter._id}`)
+  // memcached.del(`${collection}-${filter._id}`);
+  // memcached.del(collection);
   return res.upsertedId;
 };
 
