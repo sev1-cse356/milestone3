@@ -106,10 +106,15 @@ const update = async (collection, filter = {}, expr = {}) => {
   return res.upsertedId;
 };
 
+const drop = async (collection) => {
+  return db.collection(collection).drop();
+};
+
 exports.insertToDb = insert;
 exports.getAllfromDb = getAll;
 exports.getOnefromDb = getOne;
 exports.updateToDb = update;
+exports.dropDb = drop;
 
 // getEverything -> get every video or get every user
 // getOneThing -> get a single user or a single video

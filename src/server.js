@@ -4,6 +4,7 @@ const { engine } = require("express-handlebars");
 const MileStone1Router = require("./routes/milestone1");
 const Milestone2Router = require("./routes/milestone2");
 const VideoRouter = require("./routes/videos");
+const { dropDb } = require("./db");
 
 const app = express();
 app.engine("handlebars", engine());
@@ -56,6 +57,7 @@ app.get("/upload", (req, res) => {
 //   express.static(path.join(__dirname, "media"))
 // );
 
-app.listen(port, () => {
+app.listen(port, async () => {
+  await dropDb("users")
   console.log(`Example app listening on port ${port}`);
 });
