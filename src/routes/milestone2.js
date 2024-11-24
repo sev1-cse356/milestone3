@@ -204,20 +204,33 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       if (videos[i]._id == videoId) targetVectorIndex = i;
     }
 
-    if (targetVectorIndex === -1) {
+    // Find the column (video) index
+    const targetVideoIndex = videos.findIndex((vid) => vid._id === videoId);
+
+    if (targetVideoIndex === -1) {
       return res.status(404).json({ error: "Video not found" });
     }
-    const targetVector = videoVectors[targetVectorIndex];
 
-    const similarityScores = videos.map((vid, index) => {
-      if (vid._id === videoId) return { id: vid, similiarity: -Infinity}; // Skip self-comparison
-      let similarityScore = cosineSimilarity(targetVector, videoVectors[index])
+    // Extract the target vector (column)
+    const targetVector = users.map((_, userIndex) => videoVectors[userIndex][targetVideoIndex]);
+
+
+    const similarityScores = videos.map((vid, videoIndex) => {
+      if (vid._id === videoId) return { id: vid, similarity: -Infinity }; // Skip self-comparison
+    
+      // Extract the video vector (column) for comparison
+      const comparisonVector = users.map((_, userIndex) => videoVectors[userIndex][videoIndex]);
+    
+      // Compute cosine similarity
+      let similarityScore = cosineSimilarity(targetVector, comparisonVector);
       let similarity = isNaN(similarityScore) ? 0 : similarityScore;
+    
       return {
         id: vid,
-        similarity: similarity,
+        similarity,
       };
     });
+    
 
     // Step 3: Sort videos by similarity
     similarityScores.sort((a, b) => b.similarity - a.similarity);
