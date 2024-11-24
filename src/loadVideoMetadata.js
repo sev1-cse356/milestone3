@@ -4,7 +4,7 @@ const { insertToDb } = require("./db");
 
 let vidId = 0
 fs.readFile(
-  path.join(__dirname, "./media", "m2.json"),
+  path.join(__dirname, "./src/media", "m2.json"),
   "utf8",
   async (err, data) => {
     if (err) {
