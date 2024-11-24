@@ -66,8 +66,12 @@ MileStone1Router.get("/verify", async (req, res) => {
 
 MileStone1Router.post("/login", async (req, res) => {
   const { username, password } = req.body;
+
+  console.table(req.body)
   const user = await getAllfromDb("users", {"username": username})
-  if(user && password === user[0].password){
+
+  console.log(user[0] && password === user[0].password)
+  if(user[0] && password === user[0].password){
     req.session.username = username;
     req.session.email = user[0]._id;
     return res.json({ status: "OK" });
