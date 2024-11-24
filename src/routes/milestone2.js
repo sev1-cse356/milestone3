@@ -188,6 +188,8 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     )
   );
 
+  console.table(videoVectors);
+
   let recommendedVideos = [];
 
   const videoExists = videos.some((vid) => vid._id === videoId);
