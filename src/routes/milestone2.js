@@ -296,6 +296,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     };
   });
 
+  console.log("Recommended videos are: ", videoList)
   return res.json({ status: "OK", videos: videoList });
 });
 

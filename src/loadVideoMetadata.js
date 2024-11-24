@@ -16,7 +16,7 @@ fs.readFile(
       const jsonData = JSON.parse(data);
 
       const videos = Object.entries(jsonData).map(([id, description]) => ({
-        _id: vidId++,
+        _id: id.replace(".mp4", ""),
         author: "default",
         title: id.replace(".mp4", ""),
         description: description || "random video description",

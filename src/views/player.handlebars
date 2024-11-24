@@ -11,7 +11,6 @@
         display: flex;
         height: 100vh;
         margin: 0;
-        overflow: hidden;
       }
 
       .leftColumn {
@@ -19,9 +18,8 @@
         flex-direction: column;
         justify-content: space-between;
         align-items: flex-start;
-        padding: 20px;
+        padding: 15px;
         height: 100vh;  /* Make the column take the full height */
-        position: fixed;
       }
 
       #homeBtn {
@@ -54,18 +52,20 @@
       #playPauseBtn button:hover {
         background-color: #a9a9a9;
       }
-
 .videoContainer {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
+    scroll-snap-type: y mandatory;  /* Ensures scroll snapping is active */
+    overflow-y: auto;               /* Enable scrolling */
     height: 100vh;                  /* Full viewport height */
     align-items: center;            /* Center items horizontally */
     justify-content: flex-start;    /* Start items from the top */
-    margin-left: 175px;
+    scroll-behavior: smooth;        /* Smooth transition for scrolling */
 }
 
 .videoItem {
+    scroll-snap-align: center;      /* Snap video to the center */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -148,9 +148,12 @@
           entries.forEach(entry => {
             const video = entry.target;
             const videoId = entry.target.id;
-            currentPlayer = player;
             if (entry.isIntersecting) {
+              {{!-- history.pushState(null, '', `/play/${videoId}`); --}}
               {{!-- video.play().catch(err => console.log('Autoplay failed: ', err)); --}}
+
+              currentPlayer = player;
+
               fetch('/api/view', {
                 method: 'POST',
                 headers: {
@@ -166,10 +169,8 @@
               })
               .catch(error => console.error(`Error updating viewed on ${videoId}: ${error}`));
             } else {
-              player.pause;
-              player.seek(0);
-              {{!-- const video = entry.target;
-              video.pause(); --}}
+              const video = entry.target;
+              video.pause();
             }
           });
         }, {
@@ -289,10 +290,10 @@
       }
 
       let scrollTimeout = null;
-      const debounceDuration = 150;
+      const debounceDuration = 250;
 
       window.addEventListener('wheel', async (event) => {
-        event.preventDefault(); 
+        {{!-- event.preventDefault();  --}}
         if (scrollTimeout) return;
 
         scrollTimeout = setTimeout(() => {
@@ -316,7 +317,7 @@
           currentPlayer = watchHistory[historyIndex].player;
 
           // Scroll to the video element smoothly
-          videoElement.scrollIntoView({ behavior: 'auto', block: 'center' });
+          {{!-- videoElement.scrollIntoView({ behavior: 'auto', block: 'center' }); --}}
 
           // Optionally, you can also play the video if it's in view
           videoElement.play().catch(err => console.log('Autoplay failed: ', err));
@@ -325,7 +326,7 @@
         if (historyIndex === (watchHistory.length - 3)) {
           preloadVideos(8);
         }
-      }, { passive: false });
+      });
 
       // Load the initial video
       createVideoDivs(currentVideoId);
