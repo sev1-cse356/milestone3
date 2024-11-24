@@ -184,7 +184,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   const videoExists = videos.some((vid) => vid._id === videoId);
 
   if (videoId && videoExists) {
-    console.log('path 1')
+    // console.log('path 1')
     // Video-based recommendations logic...
     let targetVectorIndex = -1;
 
@@ -222,7 +222,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     // console.log("similarity score in videoExists is ", similarityScores)
 
   } else {
-    console.log('path 2')
+    // console.log('path 2')
     // Fallback to user recommendations logic
     const userVector = videos.map((vid) =>
       vid.ups.includes(email) ? 1 : vid.downs.includes(email) ? -1 : 0
@@ -306,9 +306,9 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     };
   });
 
-  console.log('user already viewed: ', user.viewed)
+  // console.log('user already viewed: ', user.viewed)
   
-  console.log("recommended videolist here is: ", videoList)
+  // console.log("recommended videolist here is: ", videoList)
   
   return res.json({ status: "OK", videos: videoList });
 });
