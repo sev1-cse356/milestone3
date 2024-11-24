@@ -330,7 +330,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       likevalues: vid.likes,
     };
   });
-
+  
   // console.log('user already viewed: ', user.viewed)
   
   console.log("recommended videolist here is: ", videoList)
