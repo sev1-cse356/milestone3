@@ -23,6 +23,13 @@ services:
         reservations:
           memory: 1G
     command: redis-server /usr/local/etc/redis/redis.conf
+    
+  cache:
+    image: memcached
+    command:
+      - --conn-limit=1024
+      - --memory-limit=4096
+      - --threads=4
 
   nginx:
     image: jonasal/nginx-certbot
