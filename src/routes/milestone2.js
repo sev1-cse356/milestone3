@@ -34,6 +34,14 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   const _id = id;
   console.log("LIKING", _id)
   let entry = await getOnefromDb("videos", { _id });
+
+  if (entry === undefined){
+    return res.json({
+      status: "ERROR",
+      error: true,
+      message: "Video Does not exist",
+    })
+  }
   entry.ups = new Set(entry.ups);
   entry.downs = new Set(entry.downs);
   // console.table(entry)
