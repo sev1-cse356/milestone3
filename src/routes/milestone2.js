@@ -155,7 +155,7 @@ Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
   // return res.json({ status: "OK", viewed: false });
 });
 
-Milestone2Router.get("/processing-status", async (req, res) => {
+Milestone2Router.get("/processing-status", isAuthenticated, async (req, res) => {
   console.log("/api/processing-status");
   // console.log(db.videos)
   const videos = await getAllfromDb("videos", { author: req.session.username });
