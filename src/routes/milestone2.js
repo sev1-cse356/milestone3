@@ -30,7 +30,6 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   const { id, value } = req.body;
 
-  console.log("/like");
   // console.table(req.body);
   const _id = id;
   let entry = await getOnefromDb("videos", { _id });
@@ -61,22 +60,18 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   let incr = 0;
 
   if (value) {
-    console.log("LIKE");
     incr = 1;
     updateToDb("videos", { _id }, { $push: { ups: req.session.email } }); // entry.ups.add(req.session.email);
     updateToDb("videos", { _id }, { $pull: { downs: req.session.email } }); // entry.downs.delete(req.session.email);
     updateToDb("users", { _id: req.session.email }, { $push: { liked: id } }); // db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
-    console.log("DISLIKE");
     incr = -1;
     updateToDb("videos", { _id }, { $push: { downs: req.session.email } });
     updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
     updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
     // entry.nones.delete(req.session.username);
   } else {
-    console.log("UNSET");
-
     if (entry.ups.has(req.session.email)) {
       updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
       incr = -1;
@@ -136,7 +131,6 @@ Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
   user.viewed = new Set(user.viewed);
   user.liked = new Set(user.liked);
 
-  console.log(user);
   if (user.viewed.has(_id)) {
     return res.json({ status: "OK", viewed: true });
   } else {
@@ -189,6 +183,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   const videoExists = videos.some((vid) => vid._id === videoId);
 
   if (videoId && videoExists) {
+    console.log('path 1')
     // Video-based recommendations logic...
     let targetVectorIndex = -1;
 
@@ -202,22 +197,31 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     const targetVector = videoVectors[targetVectorIndex];
 
     const similarityScores = videos.map((vid, index) => {
-      if (vid._id === videoId) return -Infinity; // Skip self-comparison
+      if (vid._id === videoId) return { id: vid, similiarity: -Infinity}; // Skip self-comparison
+      let similarityScore = cosineSimilarity(targetVector, videoVectors[index])
+      let similarity = isNaN(similarityScore) ? 0 : similarityScore;
       return {
         id: vid,
-        similarity: cosineSimilarity(targetVector, videoVectors[index]),
+        similarity: similarity,
       };
     });
 
     // Step 3: Sort videos by similarity
     similarityScores.sort((a, b) => b.similarity - a.similarity);
-
+    
     // Step 4: Get top `count` similar videos
+
     for (const { id } of similarityScores) {
-      recommendedVideos.add(id);
+      if (!user.viewed.includes(id._id)) {
+        recommendedVideos.push(id);
+      }
       if (recommendedVideos.size >= count) break;
     }
+
+    // console.log("similarity score in videoExists is ", similarityScores)
+
   } else {
+    console.log('path 2')
     // Fallback to user recommendations logic
     const userVector = videos.map((vid) =>
       vid.ups.includes(email) ? 1 : vid.downs.includes(email) ? -1 : 0
@@ -242,6 +246,8 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     }
 
     similarityScores.sort((a, b) => b.similarity - a.similarity);
+    
+    // console.log("similarity scores in fallback is ", similarityScores)
 
     for (const { user: similarUser } of similarityScores) {
       similarUser.liked = similarUser.liked || [];
@@ -257,23 +263,26 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
       }
       if (recommendedVideos.length >= count) break;
     }
+  }
 
+  // Ensure we have exactly 'count' videos
+  if (recommendedVideos.length < count) {
+    // get random unwatched vids
     const unwatchedVideos = videos.filter(
       (vid) => !user.viewed.includes(vid._id)
     );
-
+    
     while (recommendedVideos.length < count && unwatchedVideos.length > 0) {
       const randomIndex = Math.floor(Math.random() * unwatchedVideos.length);
       const randomVideo = unwatchedVideos.splice(randomIndex, 1)[0];
       recommendedVideos.push(randomVideo);
     }
-  }
 
-  // Ensure we have exactly 'count' videos
-  if (recommendedVideos.length < count) {
+    // if still not enough, add previously watched vids
     const additionalVideos = videos.filter(
       (vid) => !recommendedVideos.includes(vid)
     );
+
     for (const vid of additionalVideos) {
       recommendedVideos.push(vid);
       if (recommendedVideos.length >= count) break;
@@ -296,7 +305,10 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
     };
   });
 
-  console.log("Recommended videos are: ", videoList)
+  console.log('user already viewed: ', user.viewed)
+  
+  console.log("recommended videolist here is: ", videoList)
+  
   return res.json({ status: "OK", videos: videoList });
 });
 
