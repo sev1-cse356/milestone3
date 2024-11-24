@@ -316,7 +316,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
 
   // console.log('user already viewed: ', user.viewed)
   
-  // console.log("recommended videolist here is: ", videoList)
+  console.log("recommended videolist here is: ", videoList)
   
   return res.json({ status: "OK", videos: videoList });
 });
