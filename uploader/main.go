@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
@@ -148,7 +149,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	defer cancel()
 	fmt.Println(data.Id)
 
-	filter := bson.D{{"_id", data.Id}}
+	filter := bson.D{{"_id", strconv.Itoa(data.Id)}}
 	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
 	res, _ := collection.UpdateOne(ctx, filter, update)
 
