@@ -1,6 +1,6 @@
 const { MongoClient } = require("mongodb");
-// const Memcached = require("memcached");
-// const memcached = new Memcached({ "cache:11211": 1 });
+const Memcached = require("memcached");
+const memcached = new Memcached({ "cache:11211": 1 });
 
 const uri = "mongodb://root:example@db:27017";
 
@@ -10,54 +10,75 @@ client.connect().then(() => console.log("DB CONNECTED"));
 
 const db = client.db("cse356");
 
-// function cacheGet(key) {
-//   return new Promise((resolve, reject) => {
-//     memcached.gets(key, function (err, data) {
-//       if (err) {
-//         reject(err);
-//       } else {
-//         resolve(data);
-//       }
-//     });
-//   });
-// }
+function cacheGet(key) {
+  return new Promise((resolve, reject) => {
+    memcached.gets(key, function (err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  });
+}
 
 const insert = async (collection, data) => {
   const toCol = db.collection(collection);
   const res = await toCol.insertOne(data);
   // Invalidate Cache
-  // console.log(collection)
-  // memcached.del(collection);
+  console.log("Invalidateing", collection)
+  memcached.del(collection, (err, data) => {
+    console.log("DELETE", data)
+  });
   return res.insertedId;
 };
 
+function isEmpty(obj) {
+  for (const prop in obj) {
+    if (Object.hasOwn(obj, prop)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 const getAll = async (collection, filter = {}) => {
-  // Check Cache
-  // const cacheResult = await cacheGet(collection);
+  // Check Cache if the request wants ALL
+  let cacheResult = null
 
-  // if (cacheResult) {
-    // return cacheResult;
-  // }
+  if(isEmpty(filter)){
+    cacheResult = await cacheGet(collection);
+  }
 
+  if (cacheResult && !isEmpty(cacheResult[collection])) {
+    console.log("getAll", JSON.parse(cacheResult[collection]).length)
+    return JSON.parse(cacheResult[collection]);
+  }
+
+  console.log("getAll Cache Miss")
   // Find and Set Cache
   const toCol = db.collection(collection);
   const res = await toCol.find(filter);
-  // memcached.set(`${collection}`, res.toArray(), 6000, function (err) {});
-  return res.toArray();
+  const data = await res.toArray()
+  memcached.set(`${collection}`, JSON.stringify(data), 6000, function (err) {});
+  return data;
 };
 
 const getOne = async (collection, filter = {}) => {
   // Check Cache
-  // const cacheResult = await cacheGet(`${collection}-${filter._id}`);
-  // console.log(cacheResult);
-  // if (cacheResult) {
-    // return cacheResult;
-  // }
+  const key = `${filter._id}`
+  const cacheResult = await cacheGet(key);
+
+  if (cacheResult !== undefined && !isEmpty(cacheResult[key])) {
+    return JSON.parse(cacheResult[key]);
+  }
 
   // Find and Set Cache
   const res = await getAll(collection, filter);
-  // memcached.set(`${collection}-${filter._id}`, res[0], 6000, function (err) {});
-  return res[0];
+  const data = res[0]
+  memcached.set(key, JSON.stringify(data === undefined ? [] : data), 6000, function (err) {});
+  return data;
 };
 
 const update = async (collection, filter = {}, expr = {}) => {
@@ -65,9 +86,11 @@ const update = async (collection, filter = {}, expr = {}) => {
   const toCol = db.collection(collection);
   await toCol.updateOne(filter, expr);
   const res = await getAll(collection, filter);
-  // Update/Invalidate Cache
-  // memcached.set(`${collection}-${filter._id}`, res[0], 6000, function (err) {});
-  // memcached.del(collection);
+  //Invalidate Cache
+  console.log("Invalidating", collection)
+  console.log("Invalidating", `${collection}-${filter._id}`)
+  memcached.del(`${collection}-${filter._id}`);
+  memcached.del(collection);
   return res.upsertedId;
 };
 

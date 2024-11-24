@@ -153,8 +153,8 @@ func process(rdb *redis.Client, data UploadRequest) {
 	res, _ := collection.UpdateOne(ctx, filter, update)
 
 	fmt.Println(res)
-	fmt.Println(filter)
-	fmt.Println(update)
+	// fmt.Println(filter)
+	// fmt.Println(update)
 	duration := time.Since(startTime)
 	fmt.Println(data.Id, "DONE", duration)
 	<-sem

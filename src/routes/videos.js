@@ -6,6 +6,8 @@ VideoRouter.get("/homepage/:count", async (req, res) => {
   const count = req.params.count;
   const videos = await getAllfromDb('videos');
 
+  console.log("DB VIDS", videos.length)
+
   for (let i = count * 2; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [videos[i], videos[j]] = [videos[j], videos[i]];
