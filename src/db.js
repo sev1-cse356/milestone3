@@ -56,12 +56,12 @@ const getAll = async (collection, filter = {}) => {
   //   return JSON.parse(cacheResult[collection]);
   // }
 
-  console.log("getAll Cache Miss")
   // Find and Set Cache
   const toCol = db.collection(collection);
   const res = await toCol.find(filter);
   const data = await res.toArray()
   // memcached.set(`${collection}`, JSON.stringify(data), 6000, function (err) {});
+  console.log("getAll return", data.length)
   return data;
 };
 
@@ -78,6 +78,7 @@ const getOne = async (collection, filter = {}) => {
   const res = await getAll(collection, filter);
   const data = res[0]
   // memcached.set(key, JSON.stringify(data === undefined ? [] : data), 6000, function (err) {});
+  console.log("GET ONE RETURN: ", data)
   return data;
 };
 
