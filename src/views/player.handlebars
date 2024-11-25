@@ -221,7 +221,7 @@
         dislikeBtn.addEventListener('click', () => {
           dislikeBtn.classList.toggle('disliked');
           likeBtn.classList.remove('liked');
-          const isDisliked = likeBtn.classList.contains('liked') ? false : null;
+          const isDisliked = dislikeBtn.classList.contains('disliked') ? false : null;
           fetch('/api/like', {
             method: 'POST',
             headers: {

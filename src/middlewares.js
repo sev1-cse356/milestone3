@@ -18,10 +18,10 @@ exports.db = {
 let videoId = 500;
 
 exports.getAndIncrementId = () => {
-  return videoId++;
+  return `v${videoId++}`;
 };
 exports.getId = () => {
-  return videoId;
+  return `v${videoId}`;
 };
 
 // DB LOOKS LIKE

@@ -24,12 +24,13 @@ function cacheGet(key) {
 
 const insert = async (collection, data) => {
   const toCol = db.collection(collection);
-  const res = await toCol.insertOne(data);
+  const res = await toCol.insertOne(data, {writeConcern: {w:1, wtimeout: 10000}});
   // Invalidate Cache
   // console.log("Invalidateing", collection)
   // memcached.del(collection, (err, data) => {
   //   console.log("DELETE", data)
-  // });
+  // console.log("IS WRITE ACK?")
+  // console.log(res.acknowledged)
   return res.insertedId;
 };
 
@@ -97,7 +98,7 @@ const update = async (collection, filter = {}, expr = {}) => {
   // Do the Update
   const toCol = db.collection(collection);
   await toCol.updateOne(filter, expr);
-  const res = await getAll(collection, filter);
+  const res = await getAll(collection, filter, {writeConcern: {w:1, wtimeout: 10000}});
   //Invalidate Cache
   // console.log("Invalidating", collection)
   // console.log("Invalidating", `${collection}-${filter._id}`)

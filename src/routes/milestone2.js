@@ -29,13 +29,14 @@ redisClient.on("error", (err) => console.error("Redis Client Error", err));
 
 Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   const { id, value } = req.body;
+  console.log("video to like? is ", typeof id, id, req.session.email)
 
-  // console.table(req.body);
-  const _id = id;
+  const _id = id.toString();
   //console.log("LIKING", _id)
   let entry = await getOnefromDb("videos", { _id });
 
   if (entry === undefined){
+    console.error("LIKE FAILED")
     return res.json({
       status: "ERROR",
       error: true,
@@ -57,7 +58,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
     (value !== null && !value && entry.downs.has(req.session.email))
     // || entry.nones.has(req.session.email)
   ) {
-    console.log("RETURNING ERROR, USER IS LIKING A VIDEO TWICE");
+    console.error("LIKE FAILED: USER IS LIKING A VIDEO TWICE");
     return res.json({
       status: "ERROR",
       error: true,
@@ -69,6 +70,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   let incr = 0;
 
   if (value) {
+    // console.log("liking video")
     incr = 1;
     updateToDb("videos", { _id }, { $push: { ups: req.session.email } }); // entry.ups.add(req.session.email);
     updateToDb("videos", { _id }, { $pull: { downs: req.session.email } }); // entry.downs.delete(req.session.email);
@@ -76,6 +78,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
     updateToDb("users", { _id: req.session.email }, { $pull: { disliked: id } });
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
+    // console.log("disliking video")
     incr = -1;
     updateToDb("videos", { _id }, { $push: { downs: req.session.email } });
     updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
@@ -83,6 +86,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
     updateToDb("users", { _id: req.session.email }, { $push: { disliked: id } });
     // entry.nones.delete(req.session.username);
   } else {
+    // console.log("already liked or disliked")
     if (entry.ups.has(req.session.email)) {
       updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
       incr = -1;
@@ -98,19 +102,19 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   }
 
   updateToDb("videos", { _id }, { $inc: { likes: incr } });
-  // console.log("OKAY");
+  console.log("LIKE GOOD");
   return res.json({ status: "OK", likes: entry.likes + incr });
 });
 
 // TEST WITH
 // curl -X POST -F "author=Jie" -F "title=TEST" -F "mp4File=@src/media/855457-uhd_3840_2160_30fps_padded.mp4" localhost/api/upload
-Milestone2Router.post("/upload", upload.single("mp4File"), (req, res) => {
+Milestone2Router.post("/upload", upload.single("mp4File"), async (req, res) => {
   const { author, title, description } = req.body;
 
   const newVidId = getAndIncrementId();
   // console.log("before publish")
 
-  insertToDb("videos", {
+  await insertToDb("videos", {
     _id: newVidId.toString(),
     author,
     title,
@@ -194,7 +198,7 @@ async function getVideosUsersMap() {
 function fallback_unwatched(recommendedVideos, videos, user, count) {
   console.log("In fallback unwatched");
   const unwatchedVideos = videos.filter(
-    (vid) => !user.viewed.includes(vid._id) && vid.status !== "processing"
+    (vid) => !user.viewed.includes(vid._id) 
   );
 
   while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
@@ -211,7 +215,7 @@ function fallback_unwatched(recommendedVideos, videos, user, count) {
 function fallback_random(recommendedVideos, videos, user, count) {
   console.log("In fallback random");
   const watchedVideos = videos.filter(
-    (vid) => user.viewed.includes(vid._id) && vid.status !== "processing"
+    (vid) => user.viewed.includes(vid._id) 
   );
   while (recommendedVideos.size < count && watchedVideos.length > 0) {
     const randomVideo = watchedVideos.splice(
@@ -240,6 +244,7 @@ function formatResponse(recommendedVideos, user, count) {
 }
 
 function similarVideosByVideos(video, userId, users, videos, userMap, videoMap, recommendedVideos, count) {
+  console.info("In Videos By Videos")
   const videoId = video; // Assign the video ID
 
   //console.log(`Inside similar vid function ${videoId}`);
@@ -249,11 +254,15 @@ function similarVideosByVideos(video, userId, users, videos, userMap, videoMap, 
   if (users.length > 1) {
     // Step 1: Prepare the video preference vector
     const videoVector = users.map((uid) => {
+      console.log("UID is ", uid)
       const liked = uid.liked || [];
       const disliked = uid.disliked || [];
-      return liked.includes(videoId) ? 1 : disliked.includes(videoId) ? -1 : 0; // Interaction values
+      console.log('tostring? ', liked.includes(videoId.toString()))
+      console.log('no tostring? ', liked.includes(videoId))
+      return liked.includes(videoId.toString()) ? 1 : disliked.includes(videoId.toString()) ? -1 : 0; // Interaction values
     });
-    //console.log(`VIDEO VECTOR = ${videoVector}`);
+
+    console.log(`VIDEO VECTOR = ${videoVector}`);
 
     // Step 2: Calculate similarity with other videos using cosine similarity
     const similarityScores = [];
@@ -281,7 +290,7 @@ function similarVideosByVideos(video, userId, users, videos, userMap, videoMap, 
 
     // Step 3: Sort videos by similarity in descending order
     similarityScores.sort((a, b) => b.similarity - a.similarity);
-    // console.log("SORTED Similarity Scores ==========>", similarityScores);
+    console.log("SORTED Similarity Scores ==========>", similarityScores);
     console.log("VIDEO BY VIDEOS SIMILIAR")
     console.log("similarityScores length: ", similarityScores.length)
     console.log("check first similarityScore: ", similarityScores[0].similarity)
@@ -384,7 +393,7 @@ Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
   const userId = req.session.email;
   console.log("userID: ", userId);
   console.log("Count: ", count)
-  console.log("Video ID was: ", videoId)
+  // console.log("Video ID was: ", videoId.trim())
   const [users, videos, userMap, videoMap] = await getVideosUsersMap();
   const recommendedVideos = new Set();
 

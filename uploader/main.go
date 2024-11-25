@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
-	"strconv"
 	"time"
 
 	redis "github.com/redis/go-redis/v9"
@@ -18,7 +17,7 @@ import (
 )
 
 type UploadRequest struct {
-	Id   int    `json:"id"`
+	Id   string    `json:"id"`
 	File string `json:"file"`
 }
 
@@ -59,9 +58,9 @@ func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	startTime := time.Now()
 
-	paddedFileName := fmt.Sprintf("./tmp/%d_padded.mp4", data.Id)
+	paddedFileName := fmt.Sprintf("./tmp/%s_padded.mp4", data.Id)
 	inputFile := fmt.Sprintf("./tmp/%s", data.File)
-	manifestFile := fmt.Sprintf("./tmp/%d_padded_output.mpd", data.Id)
+	manifestFile := fmt.Sprintf("./tmp/%s_padded_output.mpd", data.Id)
 
 	fmt.Printf("Processing: %v\n", inputFile)
 
@@ -93,7 +92,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-vf", "scale=320:180", // Video filter to scale the output
 		"-frames:v", "1", // Capture only 1 frame
 		"-q:v", "2", // Set quality level (lower means better quality)
-		fmt.Sprintf("./tmp/%d_padded.jpg", data.Id), // Output file path
+		fmt.Sprintf("./tmp/%s_padded.jpg", data.Id), // Output file path
 	)
 
 	if err := tncmd.Start(); err != nil {
@@ -124,8 +123,8 @@ func process(rdb *redis.Client, data UploadRequest) {
 		"-seg_duration", "10", // Set segment duration
 		"-use_template", "1", // Use template for segment names
 		"-use_timeline", "1", // Use timeline for segments
-		"-init_seg_name", fmt.Sprintf(`%d_padded_chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
-		"-media_seg_name", fmt.Sprintf(`%d_padded_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, data.Id), // Media segment name
+		"-init_seg_name", fmt.Sprintf(`%s_padded_chunk_$RepresentationID$_init.m4s`, data.Id), // Initial segment name
+		"-media_seg_name", fmt.Sprintf(`%s_padded_chunk_$RepresentationID$_$Bandwidth$_$Number$.m4s`, data.Id), // Media segment name
 		"-adaptation_sets", "id=0,streams=v", // Adaptation sets
 		manifestFile, // Output DASH manifest file
 	)
@@ -154,7 +153,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	defer cancel()
 	fmt.Println(data.Id)
 
-	filter := bson.D{{"_id", strconv.Itoa(data.Id)}}
+	filter := bson.D{{"_id", data.Id}}
 	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
 	res, _ := collection.UpdateOne(ctx, filter, update)
 
