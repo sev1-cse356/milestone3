@@ -14,6 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
+	"go.mongodb.org/mongo-driver/v2/mongo/writeconcern"
 )
 
 type UploadRequest struct {
@@ -142,10 +143,14 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	// After all 3 operations are complete, update MongoDB record
-	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017"))
-	collection := client.Database("cse356").Collection("videos")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	wc := writeconcern.W1() // Ensures basic acknowledgment
+	opts := options.Collection().SetWriteConcern(wc)
+
+	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017"))
+	collection := client.Database("cse356").Collection("videos", opts)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	fmt.Println(data.Id)
 
@@ -153,7 +158,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	update := bson.D{{"$set", bson.D{{"status", "complete"}}}}
 	res, _ := collection.UpdateOne(ctx, filter, update)
 
-	fmt.Println(res)
+	fmt.Println(res.Acknowledged)
 	// fmt.Println(filter)
 	// fmt.Println(update)
 	duration := time.Since(startTime)
