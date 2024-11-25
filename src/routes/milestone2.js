@@ -32,7 +32,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
 
   // console.table(req.body);
   const _id = id;
-  console.log("LIKING", _id)
+  //console.log("LIKING", _id)
   let entry = await getOnefromDb("videos", { _id });
 
   if (entry === undefined){
@@ -73,12 +73,14 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
     updateToDb("videos", { _id }, { $push: { ups: req.session.email } }); // entry.ups.add(req.session.email);
     updateToDb("videos", { _id }, { $pull: { downs: req.session.email } }); // entry.downs.delete(req.session.email);
     updateToDb("users", { _id: req.session.email }, { $push: { liked: id } }); // db.users[req.session.email].liked.add(id);
+    updateToDb("users", { _id: req.session.email }, { $pull: { disliked: id } });
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
     incr = -1;
     updateToDb("videos", { _id }, { $push: { downs: req.session.email } });
     updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
     updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
+    updateToDb("users", { _id: req.session.email }, { $push: { disliked: id } });
     // entry.nones.delete(req.session.username);
   } else {
     if (entry.ups.has(req.session.email)) {
@@ -92,6 +94,7 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
     }
 
     updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
+    updateToDb("users", { _id: req.session.email }, { $pull: { disliked: id } });
   }
 
   updateToDb("videos", { _id }, { $inc: { likes: incr } });
@@ -156,185 +159,285 @@ Milestone2Router.post("/view", isAuthenticated, async (req, res) => {
 });
 
 Milestone2Router.get("/processing-status", isAuthenticated, async (req, res) => {
-  console.log("/api/processing-status");
+  // console.log("/api/processing-status");
   // console.log(db.videos)
   const videos = await getAllfromDb("videos", { author: req.session.username });
-  console.log("Processing STATUS", videos)
+  //console.log("Processing STATUS", videos)
   const ret = videos.map((e) => {
     return { id: e._id, title: e.title, status: e.status };
   });
   return res.json({ status: "OK", videos: ret });
 });
 
-// Add this route towards the end, before exporting the router
-Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
-  const { count, videoId } = req.body; // Include videoId in the request
-  const email = req.session.email;
+// Helper: Precompute User and Video Mappings
+async function getVideosUsersMap() {
+  const [users, videos] = await Promise.all([
+    getAllfromDb("users"),
+    getAllfromDb("videos"),
+  ]);
+  // console.log("users", users);
+  // console.log("videos", videos);
+  const userMap = users.reduce((map, user) => {
+    map[user._id] = user;
+    return map;
+  }, {});
+  const videoMap = videos.reduce((map, video) => {
+    map[video._id] = video;
+    return map;
+  }, {});
+  //console.log("userMap: ", userMap);
+  //console.log("videoMap:", videoMap);
+  return [users, videos, userMap, videoMap];
+}
 
-  let user = await getOnefromDb("users", { _id: req.session.email });
-  let videos = await getAllfromDb("videos");
-  let users = await getAllfromDb("users");
-
-  if (!user) {
-    return res.status(404).json({ error: "User data not found" });
-  }
-  user.liked = user.liked || [];
-  user.viewed = user.viewed || [];
-
-  // Step 1: Construct the User-Video Matrix
-  const videoVectors = users.map((usr) =>
-    videos.map((vid) =>
-      vid.ups.includes(usr._id) ? 1 : vid.downs.includes(usr._id) ? -1 : 0
-    )
+// Helper: Fallback to Random Unwatched Videos
+function fallback_unwatched(recommendedVideos, videos, user, count) {
+  console.log("In fallback unwatched");
+  const unwatchedVideos = videos.filter(
+    (vid) => !user.viewed.includes(vid._id) && vid.status !== "processing"
   );
-  
 
-  console.table(videoVectors);
+  while (recommendedVideos.size < count && unwatchedVideos.length > 0) {
+    const randomVideo = unwatchedVideos.splice(
+      Math.floor(Math.random() * unwatchedVideos.length),
+      1
+    )[0];
+    recommendedVideos.add(randomVideo);
+  }
+  return recommendedVideos;
+}
 
-  let recommendedVideos = [];
+// Helper: Fallback to Random Watched Videos
+function fallback_random(recommendedVideos, videos, user, count) {
+  console.log("In fallback random");
+  const watchedVideos = videos.filter(
+    (vid) => user.viewed.includes(vid._id) && vid.status !== "processing"
+  );
+  while (recommendedVideos.size < count && watchedVideos.length > 0) {
+    const randomVideo = watchedVideos.splice(
+      Math.floor(Math.random() * watchedVideos.length),
+      1
+    )[0];
+    recommendedVideos.add(randomVideo);
+  }
+  return recommendedVideos;
+}
 
-  const videoExists = videos.some((vid) => vid._id === videoId);
+// Helper: Format Response
+function formatResponse(recommendedVideos, user, count) {
+  return Array.from(recommendedVideos).slice(0, count).map((video) => ({
+    id: video._id,
+    description: video.description || "",
+    title: video.title || "",
+    watched: user.viewed.includes(video._id),
+    liked: user.liked.includes(video._id)
+      ? true
+      : user.disliked?.includes(video._id)
+      ? false
+      : null,
+    likevalues: video.likes,
+  }));
+}
 
-  if (videoId && videoExists) {
-    // console.log('path 1')
-    // Video-based recommendations logic...
-    let targetVectorIndex = -1;
+function similarVideosByVideos(video, userId, users, videos, userMap, videoMap, recommendedVideos, count) {
+  const videoId = video; // Assign the video ID
 
-    for (let i = 0; i < videos.length; i++) {
-      if (videos[i]._id == videoId) targetVectorIndex = i;
-    }
+  //console.log(`Inside similar vid function ${videoId}`);
 
-    // Find the column (video) index
-    const targetVideoIndex = videos.findIndex((vid) => vid._id === videoId);
+  const user = userMap[userId]; // Get the user object from the user map
 
-    if (targetVideoIndex === -1) {
-      return res.status(404).json({ error: "Video not found" });
-    }
-
-    // Extract the target vector (column)
-    const targetVector = users.map((_, userIndex) => videoVectors[userIndex][targetVideoIndex]);
-
-
-    const similarityScores = videos.map((vid, videoIndex) => {
-      if (vid._id === videoId) return { id: vid, similarity: -Infinity }; // Skip self-comparison
-    
-      // Extract the video vector (column) for comparison
-      const comparisonVector = users.map((_, userIndex) => videoVectors[userIndex][videoIndex]);
-    
-      // Compute cosine similarity
-      let similarityScore = cosineSimilarity(targetVector, comparisonVector);
-      let similarity = isNaN(similarityScore) ? 0 : similarityScore;
-    
-      return {
-        id: vid,
-        similarity,
-      };
+  if (users.length > 1) {
+    // Step 1: Prepare the video preference vector
+    const videoVector = users.map((uid) => {
+      const liked = uid.liked || [];
+      const disliked = uid.disliked || [];
+      return liked.includes(videoId) ? 1 : disliked.includes(videoId) ? -1 : 0; // Interaction values
     });
-    
+    //console.log(`VIDEO VECTOR = ${videoVector}`);
 
-    // Step 3: Sort videos by similarity
+    // Step 2: Calculate similarity with other videos using cosine similarity
+    const similarityScores = [];
+    // console.log(videos);
+    videos.forEach((other) => {
+      const otherVid = other._id; // Use _id for videos
+
+      if (otherVid !== videoId) {
+        const otherVideoVector = users.map((uid) => {
+          const liked = uid.liked || [];
+          const disliked = uid.disliked || [];
+          return liked.includes(otherVid) ? 1 : disliked.includes(otherVid) ? -1 : 0; // Interaction values
+        });
+
+        const similarity = cosineSimilarity(videoVector, otherVideoVector);
+        if (similarity > 0)
+          console.log("VBV OTHER VECTOR: ", videoVector, otherVideoVector, similarity, Number.isNaN(similarity) ? 0 : similarity)
+        
+        similarityScores.push({
+          video: otherVid,
+          similarity: Number.isNaN(similarity) ? 0 : similarity, // Handle NaN similarity
+        });
+      }
+    });
+
+    // Step 3: Sort videos by similarity in descending order
     similarityScores.sort((a, b) => b.similarity - a.similarity);
-    
-    // Step 4: Get top `count` similar videos
+    // console.log("SORTED Similarity Scores ==========>", similarityScores);
+    console.log("VIDEO BY VIDEOS SIMILIAR")
+    console.log("similarityScores length: ", similarityScores.length)
+    console.log("check first similarityScore: ", similarityScores[0].similarity)
+    // for (let i =0; i< similarityScores.length; i++){
+    //   if (similarityScores[i].similarity)
+    //     console.log(similarityScores[i].similarity, i)
+    // }
 
-    for (const { id } of similarityScores) {
-      if (!user.viewed.includes(id._id)) {
-        recommendedVideos.push(id);
+    // Step 4: Get recommended videos based on similar videos
+    // if (user.liked.length)
+    for (const { video: similarVideoId } of similarityScores) {
+      const similar_video = videoMap[similarVideoId]; // Fetch the video object from the video map
+      if (!user.viewed.includes(similarVideoId)) {
+        // Only add videos the user has not already viewed
+        recommendedVideos.add(similar_video);
+      }
+      if (recommendedVideos.size >= count) break; // Double-check count
+    }
+  }
+
+  return recommendedVideos;
+}
+
+
+// Helper: User-Based Recommendations
+function similarVideosByUser(
+  users,
+  videos,
+  userMap,
+  videoMap,
+  userId,
+  recommendedVideos,
+  count
+) {
+  console.log(`Reached user-based recommendation for user ${userId}`);
+
+  const user = userMap[userId];
+
+  if (users.length > 1) {
+    // Step 1: Prepare the user's preference vector
+    const userVector = videos.map((vid) => {
+      const liked = vid.ups || [];
+      const disliked = vid.downs || [];
+      return liked.includes(userId) ? 1 : disliked.includes(userId) ? -1 : 0; // No interaction
+    });
+    console.log(`USER VECTOR for userId ${userId} = ${userVector}`);
+
+    // Step 2: Calculate similarity with other users
+    const similarityScores = [];
+
+    users.forEach((otherUser) => {
+      const otherUserId = otherUser._id;
+      if (otherUserId !== userId) {
+        // Generate preference vector for the other user
+        const otherUserVector = videos.map((vid) => {
+          const liked = vid.ups || [];
+          const disliked = vid.downs || [];
+          return liked.includes(otherUserId)
+            ? 1
+            : disliked.includes(otherUserId)
+            ? -1
+            : 0; // No interaction
+        });
+
+        const similarity = cosineSimilarity(userVector, otherUserVector);
+        similarityScores.push({
+          user: otherUserId,
+          similarity: Number.isNaN(similarity) ? 0 : similarity, // Handle NaN
+        });
+      }
+    });
+
+    // Step 3: Sort users by similarity in descending order
+    similarityScores.sort((a, b) => b.similarity - a.similarity);
+    console.log("SORTED USER SIMILARITY SCORES ===========> ", similarityScores);
+
+    // Step 4: Recommend videos based on similar users
+    for (const { user: similarUserId } of similarityScores) {
+      const similarUser = userMap[similarUserId];
+      const otherLikes = similarUser.liked || []; // Videos liked by the similar user
+
+      for (const videoId of otherLikes) {
+        if (!user.viewed.includes(videoId)) {
+          // Only recommend videos not viewed by the current user
+          recommendedVideos.add(videoMap[videoId]);
+          if (recommendedVideos.size >= count) break;
+        }
       }
       if (recommendedVideos.size >= count) break;
     }
-
-    // console.log("similarity score in videoExists is ", similarityScores)
-
-  } else {
-    // console.log('path 2')
-    // Fallback to user recommendations logic
-    const userVector = videos.map((vid) =>
-      vid.ups.includes(email) ? 1 : vid.downs.includes(email) ? -1 : 0
-    );
-
-    const similarityScores = [];
-    for (const similarUser of users) {
-      if (similarUser._id === email) continue;
-      const otherVector = videos.map((vid) =>
-        vid.ups.includes(similarUser._id)
-          ? 1
-          : vid.downs.includes(similarUser._id)
-          ? -1
-          : 0
-      );
-      let similarity = cosineSimilarity(userVector, otherVector);
-      similarity = isNaN(similarity) ? 0 : similarity; // Handle NaN
-      similarityScores.push({
-        user: similarUser,
-        similarity,
-      });
-    }
-
-    similarityScores.sort((a, b) => b.similarity - a.similarity);
-    
-    // console.log("similarity scores in fallback is ", similarityScores)
-
-    for (const { user: similarUser } of similarityScores) {
-      similarUser.liked = similarUser.liked || [];
-      const otherLikes = similarUser.liked;
-      for (const vidId of otherLikes) {
-        if (!user.viewed.includes(vidId)) {
-          const vid = videos.find((v) => v._id === vidId);
-          if (vid) {
-            recommendedVideos.push(vid);
-            if (recommendedVideos.length >= count) break;
-          }
-        }
-      }
-      if (recommendedVideos.length >= count) break;
-    }
   }
 
-  // Ensure we have exactly 'count' videos
-  if (recommendedVideos.length < count) {
-    // get random unwatched vids
-    const unwatchedVideos = videos.filter(
-      (vid) => !user.viewed.includes(vid._id)
-    );
-    
-    while (recommendedVideos.length < count && unwatchedVideos.length > 0) {
-      const randomIndex = Math.floor(Math.random() * unwatchedVideos.length);
-      const randomVideo = unwatchedVideos.splice(randomIndex, 1)[0];
-      recommendedVideos.push(randomVideo);
-    }
+  return recommendedVideos;
+}
 
-    // if still not enough, add previously watched vids
-    const additionalVideos = videos.filter(
-      (vid) => !recommendedVideos.includes(vid)
-    );
 
-    for (const vid of additionalVideos) {
-      recommendedVideos.push(vid);
-      if (recommendedVideos.length >= count) break;
-    }
+// Endpoint: Recommendations
+Milestone2Router.post("/videos", isAuthenticated, async (req, res) => {
+  const { count, videoId } = req.body;
+  const userId = req.session.email;
+  console.log("userID: ", userId);
+  console.log("Count: ", count)
+  console.log("Video ID was: ", videoId)
+  const [users, videos, userMap, videoMap] = await getVideosUsersMap();
+  const recommendedVideos = new Set();
+
+  if (videoId) {
+    console.log("called VBV")
+    similarVideosByVideos(
+      videoId,
+      userId,
+      users,
+      videos,
+      userMap,
+      videoMap,
+      recommendedVideos,
+      count
+    );
   }
 
-  // Step 5: Format response
-  const videoList = recommendedVideos.slice(0, count).map((vid) => {
-    return {
-      id: vid._id,
-      description: vid.description || "",
-      title: vid.title || "",
-      watched: user.viewed.includes(vid._id),
-      liked: vid.ups.includes(email)
-        ? true
-        : vid.downs.includes(email)
-        ? false
-        : null,
-      likevalues: vid.likes,
-    };
-  });
-  
-  // console.log('user already viewed: ', user.viewed)
-  
-  console.log("recommended videolist here is: ", videoList)
-  
+  console.log("Recommended videos length after VBV: ", recommendedVideos.size)
+
+  if (recommendedVideos.size < count) {
+    console.log("VBU")
+    similarVideosByUser(
+      users,
+      videos,
+      userMap,
+      videoMap,
+      userId,
+      recommendedVideos,
+      count
+    );
+  }
+
+  console.log("Recommended videos length after VBU: ", recommendedVideos.size)
+
+  //console.log("Number of recommended videos:", recommendedVideos.size);
+  //console.log("Recommended Videos After Video-Based:", Array.from(recommendedVideos));
+
+  if (recommendedVideos.size < count) {
+    fallback_unwatched(recommendedVideos, videos, userMap[userId], count);
+  }
+    
+
+  if (recommendedVideos.size < count) {
+    fallback_random(recommendedVideos, videos, userMap[userId], count);
+  }
+
+  console.log("recommendedVideos length at end is: ", recommendedVideos.size)
+
+  const videoList = formatResponse(recommendedVideos, userMap[userId], count);
+
+  console.log("videoList length: ", videoList.length)
+  console.log("count was ", count)
+
   return res.json({ status: "OK", videos: videoList });
 });
 

@@ -7,7 +7,7 @@ const { sendVerificationEmail } = require("../mailer");
 const { getAllfromDb, insertToDb, updateToDb } = require("../db");
 
 MileStone1Router.post("/adduser", async (req, res) => {
-  console.log("/adduser");
+  //console.log("/adduser");
   console.table(req.body)
   const { username, password, email } = req.body;
 
@@ -22,7 +22,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
       message: "DUPLICATE",
     });
 
-  insertToDb("users",  {_id: email, username, password, disabled: true, viewed: [], liked: [] })
+  insertToDb("users",  { _id: email, username, password, disabled: true, viewed: [], liked: [], disliked: [] })
 
   // console.log("DB STATE AFTER ADDING USER", email);
   // console.table(db);
@@ -36,7 +36,7 @@ MileStone1Router.post("/adduser", async (req, res) => {
 });
 
 MileStone1Router.get("/verify", async (req, res) => {
-  console.log("/api/verify");
+  //console.log("/api/verify");
   const { email, key } = req.query;
   // console.log("DB STATE");
   // console.table(db);
@@ -65,17 +65,17 @@ MileStone1Router.get("/verify", async (req, res) => {
 });
 
 MileStone1Router.post("/login", async (req, res) => {
-  console.log("/api/login")
+  //console.log("/api/login")
   console.table(req.body)
   const { username, password } = req.body;
   const user = await getAllfromDb("users", {"username": username})
   if(user[0] && password === user[0].password){
     req.session.username = username;
     req.session.email = user[0]._id;
-    console.log("LOGIN SUCESSFUL")
+    //console.log("LOGIN SUCESSFUL")
     return res.json({ status: "OK" });
   } else{
-    console.log("LOGIN FAILED")
+    //console.log("LOGIN FAILED")
     return res.json({
       status: "ERROR",
       error: true,
