@@ -7,6 +7,18 @@ const VideoRouter = require("./routes/videos");
 const { dropDb, insertToDb } = require("./db");
 const fs = require("fs");
 const path = require("path");
+const MongoDBStore = require('connect-mongodb-session')(session);
+
+const store = new MongoDBStore({
+  uri: 'mongodb://db:27017/connect_mongodb_session_test',
+  collection: 'mySessions'
+});
+
+store.on('error', function(error) {
+  // Also get an error here
+  console.error("SESSION STORE MONGO NOT GOOD")
+});
+
 
 const app = express();
 app.engine("handlebars", engine());
@@ -22,6 +34,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: { secure: false },
+    store: store
   })
 );
 
