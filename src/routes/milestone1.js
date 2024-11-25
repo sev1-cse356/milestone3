@@ -66,7 +66,7 @@ MileStone1Router.get("/verify", async (req, res) => {
 
 MileStone1Router.post("/login", async (req, res) => {
   //console.log("/api/login")
-  console.table(req.body)
+  // console.table(req.body)
   const { username, password } = req.body;
   const user = await getAllfromDb("users", {"username": username})
   if(user[0] && password === user[0].password){
@@ -82,7 +82,6 @@ MileStone1Router.post("/login", async (req, res) => {
       message: "Invalid username or password",
     });
   }
-    
 });
 
 MileStone1Router.post("/logout", (req, res) => {

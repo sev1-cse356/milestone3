@@ -149,9 +149,6 @@
             const video = entry.target;
             const videoId = entry.target.id;
             if (entry.isIntersecting) {
-              {{!-- history.pushState(null, '', `/play/${videoId}`); --}}
-              {{!-- video.play().catch(err => console.log('Autoplay failed: ', err)); --}}
-
               currentPlayer = player;
 
               fetch('/api/view', {

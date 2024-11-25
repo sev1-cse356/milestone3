@@ -18,8 +18,8 @@ module.exports.sendVerificationEmail = async function sendVerificationEmail(
   to,
   text
 ) {
-  console.log(`Sending email to ${to}`);
-  console.log(`Body: ${text}`);
+  // console.log(`Sending email to ${to}`);
+  // console.log(`Body: ${text}`);
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: '"TEST" <root@sev-1.cse356.compas.cs.stonybrook.edu>', // sender address
@@ -29,6 +29,6 @@ module.exports.sendVerificationEmail = async function sendVerificationEmail(
     //cc: "jie.chen.3@stonybrook.edu",
   });
 
-  console.log("Message sent: %s", info.messageId);
+  // console.log("Message sent: %s", info.messageId);
   // Message sent: <d786aa62-4e0a-070a-47ed-0b0666549519@ethereal.email>
 };

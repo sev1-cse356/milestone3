@@ -1,12 +1,12 @@
 const { Router } = require("express");
 const VideoRouter = Router();
-const { getAllfromDb, insertToDb, updateToDb, getOnefromDb } = require("../db");
+const { getAllfromDb } = require("../db");
 
 VideoRouter.get("/homepage/:count", async (req, res) => {
   const count = req.params.count;
   const videos = await getAllfromDb('videos');
 
-  console.log("DB VIDS", videos.length)
+  // console.log("DB VIDS", videos.length)
 
   for (let i = count * 2; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
