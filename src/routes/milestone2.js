@@ -113,7 +113,7 @@ Milestone2Router.post("/upload", upload.single("mp4File"), async (req, res) => {
   const newVidId = getAndIncrementId();
   // console.log("before publish")
 
-  await insertToDb("videos", {
+  insertToDb("videos", {
     _id: newVidId.toString(),
     author,
     title,
