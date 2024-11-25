@@ -24,6 +24,7 @@ services:
     restart: unless-stopped
     command:
       - '--mongodb.uri=mongodb://root:example@mongodb:27017'  # Adjust the URI with correct credentials
+      - '--collect-all'
     ports:
       - 9216:9216  # Map Prometheus exporter port
 
