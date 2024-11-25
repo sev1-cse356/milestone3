@@ -39,7 +39,7 @@ app.get("/play/:id", (req, res) => {
   res.render("player", { videoId });
 });
 
-app.get("/",async (req, res) => {
+app.get("/", async (req, res) => {
   return res.render("home", {
     data: {
       username: req.session.username,
@@ -49,7 +49,7 @@ app.get("/",async (req, res) => {
 
 //TODO: 6.
 app.get("/upload", (req, res) => {
-   return res.render("upload");
+  return res.render("upload");
 });
 
 // Protect the /media route
@@ -60,48 +60,48 @@ app.get("/upload", (req, res) => {
 // );
 
 app.listen(port, async () => {
-  await dropDb("users")
-  await dropDb("videos")
+  await dropDb("users");
+  await dropDb("videos");
 
-  fs.readFile(
-    path.join(__dirname, "./media", "m2.json"),
-    "utf8",
-    async (err, data) => {
-      if (err) {
-        console.error("Error reading m2.json:", err);
-        return;
-      }
-  
-      try {
-        const jsonData = JSON.parse(data);
-  
-        const videos = Object.entries(jsonData).map(([id, description]) => ({
-          _id: id.replace(".mp4", ""),
-          author: "default",
-          title: id.replace(".mp4", ""),
-          description: description || "random video description",
-          likes: 0,
-          ups: [],
-          downs: [],
-          usersViewed: [],
-          status: "complete",
-        }));
-        
-        for (const video of videos) {
-          try {
-            await insertToDb("videos", video);
-          } catch (dbError) {
-            console.error("Error inserting video:", dbError);
-          }
-        }
-        console.log(
-          `${videos.length} videos were loaded and inserted into the db`
-        );
-      } catch (parseError) {
-        console.error("Error parsing m2.json:", parseError);
-      }
-    }
-  );
+  // fs.readFile(
+  //   path.join(__dirname, "./media", "m2.json"),
+  //   "utf8",
+  //   async (err, data) => {
+  //     if (err) {
+  //       console.error("Error reading m2.json:", err);
+  //       return;
+  //     }
+
+  //     try {
+  //       const jsonData = JSON.parse(data);
+
+  //       const videos = Object.entries(jsonData).map(([id, description]) => ({
+  //         _id: id.replace(".mp4", ""),
+  //         author: "default",
+  //         title: id.replace(".mp4", ""),
+  //         description: description || "random video description",
+  //         likes: 0,
+  //         ups: [],
+  //         downs: [],
+  //         usersViewed: [],
+  //         status: "complete",
+  //       }));
+
+  //       for (const video of videos) {
+  //         try {
+  //           await insertToDb("videos", video);
+  //         } catch (dbError) {
+  //           console.error("Error inserting video:", dbError);
+  //         }
+  //       }
+  //       console.log(
+  //         `${videos.length} videos were loaded and inserted into the db`
+  //       );
+  //     } catch (parseError) {
+  //       console.error("Error parsing m2.json:", parseError);
+  //     }
+  //   }
+  // );
 
   console.log(`Example app listening on port ${port}`);
 });

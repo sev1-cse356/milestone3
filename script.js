@@ -11,36 +11,41 @@ const admin = {
   username: "admin",
   password: "abc123",
   email: "admin@356.com",
- 
-}
+};
 
-const baseUrl = "http://localhost"
+const baseUrl = "http://localhost";
 // const binFile = open("ms3.mp4", "b");
 
 export function setup() {
+  const secret = "somerandomstring";
 
-  const secret =  "somerandomstring"
-  
   http.post(`${baseUrl}/api/adduser`, admin);
 
   http.post(`${baseUrl}/api/verify?email=${admin.email}&key=${secret}`);
 
   http.post(`${baseUrl}/api/login`, {
-    "username": admin.username,
-    "password": admin.password
+    username: admin.username,
+    password: admin.password,
   });
 
-  console.log(http.cookieJar())
-
+  const vuJar = http.cookieJar();
+  const cookiesForURL = vuJar.cookiesForURL(baseUrl);
+  return cookiesForURL;
 }
 
-export default function () {
-
-  http.post(`${baseUrl}/api/like`, {
+export default function (cookiesForURL) {
+  const payload = {
     id: "1732336605494",
     value: true,
-  });
+  };
+  const params = {
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cookies: cookiesForURL,
+  };
 
+  http.post(`${baseUrl}/api/like`, JSON.stringify(payload), params);
 }
 
 export function teardown(data) {
