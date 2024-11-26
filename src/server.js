@@ -4,7 +4,7 @@ const { engine } = require("express-handlebars");
 const MileStone1Router = require("./routes/milestone1");
 const Milestone2Router = require("./routes/milestone2");
 const VideoRouter = require("./routes/videos");
-const { dropDb, insertToDb } = require("./db");
+const { dropDb, insertToDb, createIndex } = require("./db");
 const fs = require("fs");
 const path = require("path");
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -115,6 +115,8 @@ app.listen(port, async () => {
       }
     }
   );
+
+  createIndex("videos", "author")
 
   console.log(`Example app listening on port ${port}`);
 });

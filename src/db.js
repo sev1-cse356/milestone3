@@ -1,6 +1,4 @@
 const { MongoClient } = require("mongodb");
-const Memcached = require("memcached");
-const memcached = new Memcached({ "cache:11211": 1 });
 
 const uri = "mongodb://root:example@db:27017";
 
@@ -10,21 +8,14 @@ client.connect().then(() => console.log("DB CONNECTED"));
 
 const db = client.db("cse356");
 
-function cacheGet(key) {
-  return new Promise((resolve, reject) => {
-    memcached.gets(key, function (err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  });
+const createIndex = async(colllection, key) => {
+  const toCol = db.collection(colllection);
+  return toCol.createIndex(key)
 }
 
 const insert = async (collection, data) => {
   const toCol = db.collection(collection);
-  const res = await toCol.insertOne(data, {writeConcern: {w:1, wtimeout: 10000}});
+  const res = await toCol.insertOne(data);
   // Invalidate Cache
   // console.log("Invalidateing", collection)
   // memcached.del(collection, (err, data) => {
@@ -98,7 +89,7 @@ const update = async (collection, filter = {}, expr = {}) => {
   // Do the Update
   const toCol = db.collection(collection);
   await toCol.updateOne(filter, expr);
-  const res = await getAll(collection, filter, {writeConcern: {w:1, wtimeout: 10000}});
+  const res = await getAll(collection, filter);
   //Invalidate Cache
   // console.log("Invalidating", collection)
   // console.log("Invalidating", `${collection}-${filter._id}`)
@@ -116,7 +107,7 @@ exports.getAllfromDb = getAll;
 exports.getOnefromDb = getOne;
 exports.updateToDb = update;
 exports.dropDb = drop;
-
+exports.createIndex = createIndex;
 // getEverything -> get every video or get every user
 // getOneThing -> get a single user or a single video
 

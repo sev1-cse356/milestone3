@@ -6,8 +6,10 @@ RUN yarn global add nodemon
 
 COPY package.json yarn.lock ./
 
+ENV NODE_ENV=production
+
 RUN yarn
 
 COPY ./src ./
 
-CMD [ "yarn", "dev" ]
+CMD [ "yarn", "start" ]

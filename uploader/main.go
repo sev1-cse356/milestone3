@@ -22,7 +22,7 @@ type UploadRequest struct {
 }
 
 var ctx = context.Background()
-var sem = make(chan int, runtime.NumCPU()/4)
+var sem = make(chan int, runtime.NumCPU() / 16)
 
 func main() {
 	// resize -> generate -> thumbnail
@@ -66,6 +66,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 
 	cmd := exec.Command(
 		"ffmpeg",
+		"-threads", "1",
 		"-y",        // Overwrite output files
 		"-f", "mp4", // Input format; change as needed based on your data
 		"-i", inputFile,
@@ -87,6 +88,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	}
 
 	tncmd := exec.Command("ffmpeg",
+		"-threads", "1",
 		"-y",                 // Overwrite output files without asking
 		"-i", paddedFileName, // Input video file
 		"-vf", "scale=320:180", // Video filter to scale the output
@@ -108,6 +110,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	// noextFileName := strings.Split(data.Filename, ".mp4")[0]
 
 	splitCmd := exec.Command("ffmpeg",
+		"-threads", "1",
 		"-y",                 // Overwrite output files without asking
 		"-i", paddedFileName, // Input video file
 		"-map", "0:v", // Map video streams from input
