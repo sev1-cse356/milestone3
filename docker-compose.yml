@@ -9,10 +9,7 @@ services:
       - .env
     ports:
       - 3000:3000
-  # deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '6'
+
   redis:
     image: redis
     ports:
@@ -42,6 +39,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
       GLIBC_TUNABLES: glibc.pthread.rseq=0
+    ports:
+      27017:27017
       
   uploader:
     build:
@@ -50,10 +49,6 @@ services:
       - .env
     volumes:
       - /mnt/video-volume/lost+found:/app/tmp
-    deploy:
-      resources:
-        limits:
-          cpus: '8'
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.47.0

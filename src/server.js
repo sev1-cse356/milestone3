@@ -7,7 +7,7 @@ const VideoRouter = require("./routes/videos");
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const store = new MongoDBStore({
-  uri: 'mongodb://root:example@db:27017/',
+  uri: process.env.MONGO_URL,
   databaseName: "sessions",
   collection: 'user_sessions'
 });
