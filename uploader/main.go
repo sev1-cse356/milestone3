@@ -22,7 +22,7 @@ type UploadRequest struct {
 }
 
 var ctx = context.Background()
-var sem = make(chan int, runtime.NumCPU() / 16)
+var sem = make(chan int, runtime.NumCPU() / 8)
 
 func main() {
 	// resize -> generate -> thumbnail
