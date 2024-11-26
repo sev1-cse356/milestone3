@@ -1,2 +1,2 @@
 - name: Compose Worker
-  ansible.builtin.command: docker compose -f {{project_dir}} down && docker compose -f {{project_dir}}/docker-compose.yml up -d uploader
+  ansible.builtin.command: docker compose -f {{project_dir}}/docker-compose.yml down && docker compose -f {{project_dir}}/docker-compose.yml up -d uploader
