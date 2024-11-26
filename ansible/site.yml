@@ -14,3 +14,5 @@
       when: "'redis' in group_names"
     - import_tasks: tasks/worker.yml
       when: "'worker' in group_names"
+    - import_tasks: tasks/express.yml
+      when: "'express' in group_names"

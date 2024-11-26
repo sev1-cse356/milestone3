@@ -15,7 +15,7 @@ const createIndex = async(colllection, key) => {
 
 const insert = async (collection, data) => {
   const toCol = db.collection(collection);
-  const res = await toCol.insertOne(data);
+  const res = await toCol.insertOne(data, {writeConcern: {w:1, wtimeout: 10000}});
   // Invalidate Cache
   // console.log("Invalidateing", collection)
   // memcached.del(collection, (err, data) => {

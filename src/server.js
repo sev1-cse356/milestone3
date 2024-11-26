@@ -4,14 +4,12 @@ const { engine } = require("express-handlebars");
 const MileStone1Router = require("./routes/milestone1");
 const Milestone2Router = require("./routes/milestone2");
 const VideoRouter = require("./routes/videos");
-const { dropDb, insertToDb, createIndex } = require("./db");
-const fs = require("fs");
-const path = require("path");
 const MongoDBStore = require('connect-mongodb-session')(session);
 
 const store = new MongoDBStore({
-  uri: 'mongodb://db:27017/connect_mongodb_session_test',
-  collection: 'mySessions'
+  uri: 'mongodb://root:example@db:27017/',
+  databaseName: "sessions",
+  collection: 'user_sessions'
 });
 
 store.on('error', function(error) {
@@ -31,9 +29,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(
   session({
     secret: "keyboard cat",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false },
+    resave: true,
+    saveUninitialized: true,
+    cookie: { secure: false,  maxAge: 1000 * 60 * 60 * 24 * 7  },
     store: store
   })
 );
@@ -73,50 +71,6 @@ app.get("/upload", (req, res) => {
 // );
 
 app.listen(port, async () => {
-  await dropDb("users");
-  await dropDb("videos");
-
-  fs.readFile(
-    path.join(__dirname, "./media", "m2.json"),
-    "utf8",
-    async (err, data) => {
-      if (err) {
-        console.error("Error reading m2.json:", err);
-        return;
-      }
-
-      try {
-        const jsonData = JSON.parse(data);
-
-        const videos = Object.entries(jsonData).map(([id, description]) => ({
-          _id: id.replace(".mp4", ""),
-          author: "default",
-          title: id.replace(".mp4", ""),
-          description: description || "random video description",
-          likes: 0,
-          ups: [],
-          downs: [],
-          usersViewed: [],
-          status: "complete",
-        }));
-
-        for (const video of videos) {
-          try {
-            await insertToDb("videos", video);
-          } catch (dbError) {
-            console.error("Error inserting video:", dbError);
-          }
-        }
-        console.log(
-          `${videos.length} videos were loaded and inserted into the db`
-        );
-      } catch (parseError) {
-        console.error("Error parsing m2.json:", parseError);
-      }
-    }
-  );
-
-  createIndex("videos", "author")
-
+ 
   console.log(`Example app listening on port ${port}`);
 });
