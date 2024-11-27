@@ -8,7 +8,7 @@ const { getAllfromDb, insertToDb, updateToDb } = require("../db");
 
 MileStone1Router.post("/adduser", async (req, res) => {
   //console.log("/adduser");
-  console.table(req.body)
+  // console.table(req.body)
   const { username, password, email } = req.body;
 
 
