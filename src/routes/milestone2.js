@@ -71,18 +71,26 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
   if (value) {
     // console.log("liking video")
     incr = 1;
-    updateToDb("videos", { _id }, { $push: { ups: req.session.email } }); // entry.ups.add(req.session.email);
-    updateToDb("videos", { _id }, { $pull: { downs: req.session.email } }); // entry.downs.delete(req.session.email);
-    updateToDb("users", { _id: req.session.email }, { $push: { liked: id } }); // db.users[req.session.email].liked.add(id);
-    updateToDb("users", { _id: req.session.email }, { $pull: { disliked: id } });
+    updateToDb("videos", { _id }, { 
+      $push: { ups: req.session.email },
+      $pull: { downs: req.session.email }
+  });
+    updateToDb("users", { _id: req.session.email }, 
+      { $push: { liked: id } }, { $pull: { disliked: id } 
+    }); // db.users[req.session.email].liked.add(id);
     // entry.nones.delete(req.session.username);
   } else if (value !== null && !value) {
     // console.log("disliking video")
     incr = -1;
-    updateToDb("videos", { _id }, { $push: { downs: req.session.email } });
-    updateToDb("videos", { _id }, { $pull: { ups: req.session.email } });
-    updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
-    updateToDb("users", { _id: req.session.email }, { $push: { disliked: id } });
+    updateToDb("videos", { _id }, {
+       $push: { downs: req.session.email } ,
+       $pull: { ups: req.session.email } }
+    );
+
+    updateToDb("users", { _id: req.session.email }, { 
+      $pull: { liked: id }, 
+      $push: { disliked: id } 
+  });
     // entry.nones.delete(req.session.username);
   } else {
     // console.log("already liked or disliked")
@@ -96,8 +104,9 @@ Milestone2Router.post("/like", isAuthenticated, async (req, res) => {
       incr = 1;
     }
 
-    updateToDb("users", { _id: req.session.email }, { $pull: { liked: id } }); // db.users[req.session.email].liked.delete(id);
-    updateToDb("users", { _id: req.session.email }, { $pull: { disliked: id } });
+    updateToDb("users", { _id: req.session.email }, { 
+      $pull: { liked: id, disliked: id } 
+  });
   }
 
   updateToDb("videos", { _id }, { $inc: { likes: incr } });
