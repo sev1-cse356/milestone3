@@ -3,4 +3,4 @@
 - name: Compose Down
   ansible.builtin.command: docker compose -f {{project_dir}}/docker-compose.worker.yml down
 - name: Compose Express
-  ansible.builtin.command: docker compose -f {{project_dir}}/docker-compose.worker.yml up --scale express=3 -d
+  ansible.builtin.command: docker compose -f {{project_dir}}/docker-compose.worker.yml up --build --scale express=3 -d
