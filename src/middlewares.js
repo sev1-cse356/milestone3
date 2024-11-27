@@ -10,7 +10,7 @@ exports.isAuthenticated = function isAuthenticated(req, res, next) {
   }
 };
 
-let videoId = 500;
+let videoId = Date.now();
 
 exports.getAndIncrementId = () => {
   return `v${videoId++}`;
