@@ -58,34 +58,36 @@ func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	startTime := time.Now()
 
-	paddedFileName := fmt.Sprintf("./tmp/%s_padded.mp4", data.Id)
+	
 	inputFile := fmt.Sprintf("./tmp/%s", data.File)
+	// paddedFileName := fmt.Sprintf("./tmp/%s_padded.mp4", data.Id)
+	paddedFileName := inputFile
 	manifestFile := fmt.Sprintf("./tmp/%s_padded_output.mpd", data.Id)
 
 	fmt.Printf("Processing: %v\n", inputFile)
 
-	cmd := exec.Command(
-		"ffmpeg",
-		"-threads", "1",
-		"-y",        // Overwrite output files
-		"-f", "mp4", // Input format; change as needed based on your data
-		"-i", inputFile,
-		"-vf", `scale=w=iw*min(1280/iw\,720/ih):h=ih*min(1280/iw\,720/ih),pad=1280:720:(1280-iw*min(1280/iw\,720/ih))/2:(720-ih*min(1280/iw\,720/ih))/2`, // Video filter
-		"-c:a", "copy", // Copy audio codec
-		paddedFileName, // Output file
-	)
+	// cmd := exec.Command(
+	// 	"ffmpeg",
+	// 	"-threads", "1",
+	// 	"-y",        // Overwrite output files
+	// 	"-f", "mp4", // Input format; change as needed based on your data
+	// 	"-i", inputFile,
+	// 	"-vf", `scale=w=iw*min(1280/iw\,720/ih):h=ih*min(1280/iw\,720/ih),pad=1280:720:(1280-iw*min(1280/iw\,720/ih))/2:(720-ih*min(1280/iw\,720/ih))/2`, // Video filter
+	// 	"-c:a", "copy", // Copy audio codec
+	// 	paddedFileName, // Output file
+	// )
 
 	// cmd.Stderr = os.Stdout
 
-	if err := cmd.Start(); err != nil {
-		fmt.Println("Error starting the resize process:", err)
-		return
-	}
+	// if err := cmd.Start(); err != nil {
+	// 	fmt.Println("Error starting the resize process:", err)
+	// 	return
+	// }
 
-	if err := cmd.Wait(); err != nil {
-		fmt.Println(data.Id, "Error waiting for resize to finish:", err)
-		return
-	}
+	// if err := cmd.Wait(); err != nil {
+	// 	fmt.Println(data.Id, "Error waiting for resize to finish:", err)
+	// 	return
+	// }
 
 	tncmd := exec.Command("ffmpeg",
 		"-threads", "1",

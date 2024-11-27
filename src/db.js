@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 
 const uri = process.env.MONGO_URL;
 
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {poolSize: 100});
 
 client.connect().then(() => console.log("DB CONNECTED"));
 
