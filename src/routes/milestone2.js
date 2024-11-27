@@ -165,10 +165,10 @@ Milestone2Router.get("/processing-status", isAuthenticated, async (req, res) => 
   // console.log("/api/processing-status");
   // console.log(db.videos)
   const videos = await getAllfromDb("videos", { author: req.session.username });
-  //console.log("Processing STATUS", videos)
   const ret = videos.map((e) => {
     return { id: e._id, title: e.title, status: e.status };
   });
+  console.log("Processing STATUS", req.session.username, ret)
   return res.json({ status: "OK", videos: ret });
 });
 
