@@ -34,12 +34,40 @@ services:
   db:
     image: mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
       GLIBC_TUNABLES: glibc.pthread.rseq=0
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'130.245.136.74:27017',priority:1},{_id:1,host:'130.245.136.74:27018',priority:0.5},{_id:2,host:'130.245.136.74:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - ./mongodb/rs.conf:/etc/mongod.conf
     ports:
       - 27017:27017
-      
+  
+  db2:
+    image: mongo
+    environment:
+      GLIBC_TUNABLES: glibc.pthread.rseq=0
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    volumes:
+      - ./mongodb/rs.conf:/etc/mongod.conf
+    ports:
+      - 27018:27017
+
+  db3:
+    image: mongo
+    environment:
+      GLIBC_TUNABLES: glibc.pthread.rseq=0
+    command: ["mongod", "--config", "/etc/mongod.conf"]
+    volumes:
+      - ./mongodb/rs.conf:/etc/mongod.conf
+    ports:
+      - 27019:27017
+
   uploader:
     build:
       context: ./uploader
