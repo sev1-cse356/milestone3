@@ -1,0 +1,16 @@
+services:
+  express:
+    build:
+      context: ./
+    volumes:
+      - ./src:/app/src
+      - /mnt/video-volume/lost+found:/app/src/media
+    env_file:
+      - .env
+
+  haproxy:
+    image: haproxy:latest
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
+    ports:
+      - 80:80
