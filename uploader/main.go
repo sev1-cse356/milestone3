@@ -151,7 +151,7 @@ func process(rdb *redis.Client, data UploadRequest) {
 	wc := writeconcern.W1() // Ensures basic acknowledgment
 	opts := options.Collection().SetWriteConcern(wc)
 
-	client, _ := mongo.Connect(options.Client().ApplyURI("mongodb://root:example@db:27017"))
+	client, _ := mongo.Connect(options.Client().ApplyURI(os.Getenv("MONGO_URL")))
 	collection := client.Database("cse356").Collection("videos", opts)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

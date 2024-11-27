@@ -5,6 +5,7 @@ const MileStone1Router = require("./routes/milestone1");
 const Milestone2Router = require("./routes/milestone2");
 const VideoRouter = require("./routes/videos");
 const MongoDBStore = require('connect-mongodb-session')(session);
+const compression = require('compression')
 
 const store = new MongoDBStore({
   uri: process.env.MONGO_URL,
@@ -24,6 +25,7 @@ app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 const port = 3000;
 
+app.use(compression())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
