@@ -30,39 +30,39 @@ Response format: {id: string}
 
 Grading completed. Score: 10
 
-Successfully added user: grader+xPHTCvbLmQ
-/api/adduser ERRORs out when creating an account with duplicate credentials
-Successfully verified users grader+xPHTCvbLmQ
-Verifying user grader+WC-4a38rz- with wrong key errors out
-Recieved correct Header
-Successfully logged into user grader+xPHTCvbLmQ.
-beginning basic tests
-Successfully passed like test.
-Successfully passed view test.
-starting frontend tests
-Login elements found.
-Successfully logged in using frontend
-Found 10 thumbnail images at https://sev-1.cse356.compas.cs.stonybrook.edu
-Thumbnail sources match expected pattern
-Thumbnails are clickable.
-clicking
-clicked
-Successfully navigated to /play/6568266-uhd_2160_4096_25fps
-Successfully scrolled down!
-Successfully scrolled up!
-Frontend Tests Passed!
-basic tests passed! beginning to register other users and liking some videos
-Added user: grader+WC-4a38rz-
-Added user: grader+NZrG8brVZd
-Added user: grader+U9rDmHZLhg
-Added user: grader+tij69j0HGY
-Successfully liked videos on multiple users.
-passed recommendation test
-Basic tests passed! Start loading test
-Starting load test...
-Load target reached, maintaining load for QoS target 50...
-RPS: 513, 95th% latency (LikeServer): 43/108
-Passed - cleaning up...
+Successfully added user: grader+xPHTCvbLmQ</br>
+/api/adduser ERRORs out when creating an account with duplicate credentials</br>
+Successfully verified users grader+xPHTCvbLmQ</br>
+Verifying user grader+WC-4a38rz- with wrong key errors out</br>
+Recieved correct Header</br>
+Successfully logged into user grader+xPHTCvbLmQ.</br>
+beginning basic tests</br>
+Successfully passed like test.</br>
+Successfully passed view test.</br>
+starting frontend tests</br>
+Login elements found.</br>
+Successfully logged in using frontend</br>
+Found 10 thumbnail images at https://sev-1.cse356.compas.cs.stonybrook.edu</br>
+Thumbnail sources match expected pattern</br>
+Thumbnails are clickable.</br>
+clicking</br>
+clicked</br>
+Successfully navigated to /play/6568266-uhd_2160_4096_25fps</br>
+Successfully scrolled down!</br>
+Successfully scrolled up!</br>
+Frontend Tests Passed!</br>
+basic tests passed! beginning to register other users and liking some videos</br>
+Added user: grader+WC-4a38rz-</br>
+Added user: grader+NZrG8brVZd</br>
+Added user: grader+U9rDmHZLhg</br>
+Added user: grader+tij69j0HGY</br>
+Successfully liked videos on multiple users.</br>
+passed recommendation test</br>
+Basic tests passed! Start loading test</br>
+Starting load test...</br>
+Load target reached, maintaining load for QoS target 50...</br>
+RPS: 513, 95th% latency (LikeServer): 43/108</br>
+Passed - cleaning up...</br>
 
 -------------
 
