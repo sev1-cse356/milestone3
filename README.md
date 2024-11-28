@@ -28,6 +28,41 @@ Response format: {id: string}
 
 -------------------
 
+Grading completed. Score: 10
+
+Successfully added user: grader+xPHTCvbLmQ
+/api/adduser ERRORs out when creating an account with duplicate credentials
+Successfully verified users grader+xPHTCvbLmQ
+Verifying user grader+WC-4a38rz- with wrong key errors out
+Recieved correct Header
+Successfully logged into user grader+xPHTCvbLmQ.
+beginning basic tests
+Successfully passed like test.
+Successfully passed view test.
+starting frontend tests
+Login elements found.
+Successfully logged in using frontend
+Found 10 thumbnail images at https://sev-1.cse356.compas.cs.stonybrook.edu
+Thumbnail sources match expected pattern
+Thumbnails are clickable.
+clicking
+clicked
+Successfully navigated to /play/6568266-uhd_2160_4096_25fps
+Successfully scrolled down!
+Successfully scrolled up!
+Frontend Tests Passed!
+basic tests passed! beginning to register other users and liking some videos
+Added user: grader+WC-4a38rz-
+Added user: grader+NZrG8brVZd
+Added user: grader+U9rDmHZLhg
+Added user: grader+tij69j0HGY
+Successfully liked videos on multiple users.
+passed recommendation test
+Basic tests passed! Start loading test
+Starting load test...
+Load target reached, maintaining load for QoS target 50...
+RPS: 513, 95th% latency (LikeServer): 43/108
+Passed - cleaning up...
 
 -------------
 
