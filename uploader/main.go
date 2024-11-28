@@ -17,12 +17,12 @@ import (
 )
 
 type UploadRequest struct {
-	Id   string    `json:"id"`
+	Id   string `json:"id"`
 	File string `json:"file"`
 }
 
 var ctx = context.Background()
-var sem = make(chan int, runtime.NumCPU() / 8)
+var sem = make(chan int, runtime.NumCPU()/8)
 
 func main() {
 	// resize -> generate -> thumbnail
@@ -58,7 +58,6 @@ func process(rdb *redis.Client, data UploadRequest) {
 	fmt.Println(data.Id, "STARTING")
 	startTime := time.Now()
 
-	
 	inputFile := fmt.Sprintf("./tmp/%s", data.File)
 	// paddedFileName := fmt.Sprintf("./tmp/%s_padded.mp4", data.Id)
 	paddedFileName := inputFile
