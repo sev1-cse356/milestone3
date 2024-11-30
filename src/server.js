@@ -25,7 +25,7 @@ app.set("view engine", "handlebars");
 app.set("views", "./src/views");
 const port = 3000;
 
-app.use(compression())
+// app.use(compression())
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
