@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile.debug
     volumes:
       - ./src:/app/src
-      - /mnt/video-volume/lost+found:/app/src/media
+      # - /mnt/video-volume/lost+found:/app/src/media
     env_file:
       - .env
     tty: true
@@ -19,18 +19,15 @@ services:
     command: redis-server /usr/local/etc/redis/redis.conf
     
   nginx:
-    image: jonasal/nginx-certbot
-    environment:
-      - CERTBOT_EMAIL=jiechenmc@gmail.com
+    image: nginx
     ports:
       - 80:80
       - 443:443
       - 8080:8080
     volumes:
-      - /mnt/video-volume/lost+found:/usr/share/nginx/html/media
-      - ./nginx/debug.conf:/etc/nginx/user_conf.d/user.conf
+      # - /mnt/video-volume/lost+found:/usr/share/nginx/html/media
+      - ./nginx/debug.conf:/etc/nginx/conf.d/user.conf
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - nginx_secrets:/etc/letsencrypt
     depends_on:
       - express
 
@@ -48,8 +45,8 @@ services:
       context: ./uploader
     env_file:
       - .env
-    volumes:
-      - /mnt/video-volume/lost+found:/app/tmp
+    # volumes:
+      # - /mnt/video-volume/lost+found:/app/tmp
 
   haproxy:
     image: haproxy:latest
@@ -74,17 +71,17 @@ services:
     devices:
       - /dev/kmsg
 
-  node_exporter:
-    image: quay.io/prometheus/node-exporter:latest
-    container_name: node_exporter
-    command:
-      - '--path.rootfs=/host'
-    pid: host
-    restart: unless-stopped
-    volumes:
-      - '/:/host:ro,rslave'
-    ports:
-      - 9100:9100
+  # node_exporter:
+  #   image: quay.io/prometheus/node-exporter:latest
+  #   container_name: node_exporter
+  #   command:
+  #     - '--path.rootfs=/host'
+  #   pid: host
+  #   restart: unless-stopped
+  #   volumes:
+  #     - '/:/host:ro,rslave'
+  #   ports:
+  #     - 9100:9100
 
   mdb_exporter:
     image: percona/mongodb_exporter:0.42.0

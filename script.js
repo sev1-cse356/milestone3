@@ -14,7 +14,7 @@ const admin = {
 };
 
 const baseUrl = "http://localhost";
-// const binFile = open("ms3.mp4", "b");
+const binFile = open("ms3.mp4", "b");
 
 export function setup() {
   const secret = "somerandomstring";
@@ -45,7 +45,14 @@ export default function (cookiesForURL) {
     cookies: cookiesForURL,
   };
 
-  http.post(`${baseUrl}/api/like`, JSON.stringify(payload), params);
+  const data = {
+    author: "this is a standard form field",
+    title: "TEST",
+    description: "YEET",
+    mp4File: http.file(binFile, "ms3.mp4"),
+  };
+
+  http.post(`${baseUrl}/api/upload`, data, params);
 }
 
 export function teardown(data) {
